@@ -7,7 +7,7 @@ await SynchroniserServiceBuilder
     .Create()
     .WithConfiguration(builder.Configuration)
     .WithScheduledJob<JobNumber1>("GroupNumber1", "JobNumber1", "JobNumber1 description")
-    .WithScheduledJob<JobNumber2>("GroupNumber2", "JobNumber2", "JobNumber2 description")
+    .WithScheduledJob<JobNumber2>("GroupNumber1", "JobNumber2", "JobNumber2 description")
     .Build();
 
 var app = builder.Build();
