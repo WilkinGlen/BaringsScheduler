@@ -11,6 +11,7 @@ public sealed class SynchroniserJob : IJob
         {
             var syncService = new SynchroniserService();
             await syncService.SynchroniseJobs();
+            await syncService.SynchroniseTriggers();
         }
         catch
         {

@@ -4,33 +4,37 @@ using BaringsScheduler.Jobs;
 using Microsoft.Extensions.Configuration;
 using Quartz;
 using Quartz.Impl;
+using Quartz.Impl.Matchers;
 using Serilog;
-using static Quartz.Logging.OperationName;
 
 public interface ISynchroniserService
 {
     Task Setup();
 
     Task SynchroniseJobs();
+
+    Task SynchroniseTriggers();
 }
 
 public sealed class SynchroniserService : ISynchroniserService
 {
-    private IScheduler? scheduler;
-    private IScheduler Scheduler
+    private static IScheduler? scheduler;
+    private static IScheduler Scheduler
     {
         get
         {
-            if (this.scheduler == null)
+            if (scheduler == null)
             {
                 var factoryProperties = SchedulerFactoryPropertiesService.GetFactoryProperties(Constants.QuartzDatabaseConnectionString!);
                 var schedulerFactory = new StdSchedulerFactory(factoryProperties);
-                this.scheduler = schedulerFactory.GetScheduler().Result;
+                scheduler = schedulerFactory.GetScheduler().Result;
             }
 
-            return this.scheduler;
+            return scheduler;
         }
     }
+
+    private static List<IJobDetail> scheduledJobDetails = [];
 
     public SynchroniserService() { }
 
@@ -38,12 +42,57 @@ public sealed class SynchroniserService : ISynchroniserService
 
     public async Task Setup() => await this.CreateOrEditSynchroniserJob();
 
+    public void AddScheduledJob<T>(string groupName, string jobName, string jobDescription) where T : IJob
+    {
+        try
+        {
+            scheduledJobDetails.Add(JobBuilder.Create<T>()
+                .WithIdentity(new JobKey(jobName, groupName))
+                .WithDescription(jobDescription)
+                .StoreDurably(true)
+                .PersistJobDataAfterExecution(true)
+                .DisallowConcurrentExecution(true)
+                .Build());
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error in SynchroniserService.AddScheduledJob");
+            throw;
+        }
+    }
+
     public async Task SynchroniseJobs()
     {
-        //Get all jobs from the quartz database
-        //Get trigger definitions from the scheduler database
-        //For each job, if trigger definition is different / non - existent / new then replace / delete / create trigger
-        //Delete all triggers definitions that don't have matching jobs
+        //Delete all jobs from quartz database that are not in scheduledJobDetails
+        var existingJobs = await Scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup());
+        foreach (var existingJob in existingJobs.Where(x => x.Name != Constants.SynchroniserJobName && x.Group != Constants.SynchroniserGroupName))
+        {
+            if(scheduledJobDetails.FirstOrDefault(x => x.Key.Group == existingJob.Group && x.Key.Name == existingJob.Name) == null)
+            {
+                _ = await Scheduler.DeleteJob(existingJob);
+            }
+        }
+        //Insert all jobs in scheduledJobDetails that aren't already in quartz database
+        foreach (var scheduledJob in scheduledJobDetails)
+        {
+            var existingJob = await Scheduler.GetJobDetail(scheduledJob.Key);
+            if (existingJob == null)
+            {
+                var job = JobBuilder.Create<SynchroniserJob>()
+                    .WithIdentity(scheduledJob.Key)
+                    .WithDescription(Constants.SynchroniserJobDescription)
+                    .StoreDurably()
+                    .PersistJobDataAfterExecution(true)
+                    .DisallowConcurrentExecution(true)
+                    .Build();
+                await Scheduler.AddJob(job, true);
+            }
+        }
+    }
+
+    public async Task SynchroniseTriggers()
+    {
+
     }
 
     private async Task CreateOrEditSynchroniserJob()
@@ -52,14 +101,17 @@ public sealed class SynchroniserService : ISynchroniserService
         try
         {
             // Check if the job already exists
-            var syncJob = await this.Scheduler.GetJobDetail(new JobKey(Constants.SynchroniserJobName, Constants.SynchroniserGroupName));
+            var syncJob = await Scheduler.GetJobDetail(new JobKey(Constants.SynchroniserJobName, Constants.SynchroniserGroupName));
             if (syncJob == null)
             {
                 // Create the job
                 var jobKey = new JobKey(Constants.SynchroniserJobName, Constants.SynchroniserGroupName);
                 var job = JobBuilder.Create<SynchroniserJob>()
                     .WithIdentity(jobKey)
+                    .WithDescription(Constants.SynchroniserJobDescription)
                     .StoreDurably()
+                    .PersistJobDataAfterExecution(true)
+                    .DisallowConcurrentExecution(true)
                     .Build();
                 var trigger = TriggerBuilder.Create()
                     .WithIdentity(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName)
@@ -67,12 +119,12 @@ public sealed class SynchroniserService : ISynchroniserService
                     .StartNow()
                     .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
                     .Build();
-                _ = await this.Scheduler.ScheduleJob(job, trigger);
+                _ = await Scheduler.ScheduleJob(job, trigger);
             }
             else
             {
                 // Check if the trigger is set to the correct period
-                var syncTrigger = await this.Scheduler.GetTrigger(new TriggerKey(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName));
+                var syncTrigger = await Scheduler.GetTrigger(new TriggerKey(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName));
                 if (syncTrigger is ICronTrigger cronTrigger)
                 {
                     if (cronTrigger?.CronExpressionString?.Equals(expectedRunPeriodMinutes) == false)
@@ -84,12 +136,12 @@ public sealed class SynchroniserService : ISynchroniserService
                             .StartNow()
                             .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
                             .Build();
-                        _ = await this.Scheduler.RescheduleJob(new TriggerKey(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName), trigger);
+                        _ = await Scheduler.RescheduleJob(new TriggerKey(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName), trigger);
                     }
                 }
             }
 
-            await this.Scheduler.Start();
+            await Scheduler.Start();
         }
         catch (Exception ex)
         {
