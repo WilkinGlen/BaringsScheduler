@@ -1,6 +1,7 @@
 ﻿namespace BaringsScheduler.Services;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 
 public class SynchroniserServiceBuilder
@@ -17,7 +18,7 @@ public class SynchroniserServiceBuilder
         return this;
     }
 
-    public SynchroniserServiceBuilder WithScheduledJob<T>(string groupName, string jobName, string jobDescription) where T : IJob
+    public SynchroniserServiceBuilder WithScheduledJob<T>(string groupName, string jobName, string jobDescription) where T : class, IJob
     {
         SynchroniserService.AddScheduledJob<T>(groupName, jobName, jobDescription);
         return this;

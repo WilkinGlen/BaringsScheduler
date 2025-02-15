@@ -2,6 +2,7 @@
 
 using BaringsScheduler.Jobs;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Impl.Matchers;
@@ -38,11 +39,17 @@ internal sealed class SynchroniserService
 
     private static readonly List<IJobDetail> scheduledJobDetails = [];
 
+    private static ServiceCollection serviceCollection = [];
+
     internal SynchroniserService(IConfiguration configuration) => ExtractConfigSettings(configuration);
 
-    internal static async Task Setup() => await CreateOrEditSynchroniserJob();
+    internal static async Task Setup()
+    {
+        await CreateOrEditSynchroniserJob();
+        Scheduler.JobFactory = new JobFactory(serviceCollection.BuildServiceProvider());
+    }
 
-    internal static void AddScheduledJob<T>(string groupName, string jobName, string jobDescription) where T : IJob
+    internal static void AddScheduledJob<T>(string groupName, string jobName, string jobDescription) where T : class, IJob
     {
         try
         {
@@ -53,7 +60,7 @@ internal sealed class SynchroniserService
                 .PersistJobDataAfterExecution(true)
                 .DisallowConcurrentExecution(true)
                 .Build());
-            //TODO: Add T to service collection
+            _ = serviceCollection.AddScoped<T>();
         }
         catch (Exception ex)
         {
@@ -151,6 +158,7 @@ internal sealed class SynchroniserService
                 await EnsureSyncTriggerIsSetCorrectly(expectedRunPeriodMinutes);
             }
 
+            _ = serviceCollection.AddScoped<SynchroniserJob>();
             await Scheduler.Start();
         }
         catch (Exception ex)
