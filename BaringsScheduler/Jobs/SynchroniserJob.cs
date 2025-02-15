@@ -9,9 +9,8 @@ public sealed class SynchroniserJob : IJob
     {
         try
         {
-            var syncService = new SynchroniserService();
-            await syncService.SynchroniseJobs();
-            await syncService.SynchroniseTriggers();
+            await SynchroniserService.SynchroniseJobs();
+            await SynchroniserService.SynchroniseTriggers();
         }
         catch
         {

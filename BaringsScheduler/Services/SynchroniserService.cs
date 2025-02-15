@@ -7,16 +7,7 @@ using Quartz.Impl;
 using Quartz.Impl.Matchers;
 using Serilog;
 
-public interface ISynchroniserService
-{
-    Task Setup();
-
-    Task SynchroniseJobs();
-
-    Task SynchroniseTriggers();
-}
-
-public sealed class SynchroniserService : ISynchroniserService
+public sealed class SynchroniserService
 {
     private static IScheduler? scheduler;
     private static IScheduler Scheduler
@@ -34,15 +25,15 @@ public sealed class SynchroniserService : ISynchroniserService
         }
     }
 
-    private static List<IJobDetail> scheduledJobDetails = [];
+    private static readonly List<IJobDetail> scheduledJobDetails = [];
 
-    public SynchroniserService() { }
+    internal SynchroniserService() { }
 
-    public SynchroniserService(IConfiguration configuration) => ExtractConfigSettings(configuration);
+    internal SynchroniserService(IConfiguration configuration) => ExtractConfigSettings(configuration);
 
-    public async Task Setup() => await this.CreateOrEditSynchroniserJob();
+    internal static async Task Setup() => await CreateOrEditSynchroniserJob();
 
-    public void AddScheduledJob<T>(string groupName, string jobName, string jobDescription) where T : IJob
+    internal static void AddScheduledJob<T>(string groupName, string jobName, string jobDescription) where T : IJob
     {
         try
         {
@@ -61,13 +52,13 @@ public sealed class SynchroniserService : ISynchroniserService
         }
     }
 
-    public async Task SynchroniseJobs()
+    internal static async Task SynchroniseJobs()
     {
         //Delete all jobs from quartz database that are not in scheduledJobDetails
         var existingJobs = await Scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup());
         foreach (var existingJob in existingJobs.Where(x => x.Name != Constants.SynchroniserJobName && x.Group != Constants.SynchroniserGroupName))
         {
-            if(scheduledJobDetails.FirstOrDefault(x => x.Key.Group == existingJob.Group && x.Key.Name == existingJob.Name) == null)
+            if (scheduledJobDetails.FirstOrDefault(x => x.Key.Group == existingJob.Group && x.Key.Name == existingJob.Name) == null)
             {
                 _ = await Scheduler.DeleteJob(existingJob);
             }
@@ -90,12 +81,12 @@ public sealed class SynchroniserService : ISynchroniserService
         }
     }
 
-    public async Task SynchroniseTriggers()
+    internal static async Task SynchroniseTriggers()
     {
 
     }
 
-    private async Task CreateOrEditSynchroniserJob()
+    private static async Task CreateOrEditSynchroniserJob()
     {
         var expectedRunPeriodMinutes = $"0 0/{Constants.SynchroniserRunPeriodMinutes} * * * ?";
         try
