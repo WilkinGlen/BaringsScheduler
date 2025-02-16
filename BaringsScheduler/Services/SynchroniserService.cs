@@ -1,6 +1,7 @@
 ﻿namespace BaringsScheduler.Services;
 
 using BaringsScheduler.Jobs;
+using BaringsScheduler.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
@@ -42,6 +43,8 @@ internal sealed class SynchroniserService
     private static ServiceCollection serviceCollection = [];
 
     internal SynchroniserService(IConfiguration configuration) => ExtractConfigSettings(configuration);
+
+    internal static SchedulesBaringRepository SchedulesBaringRepository { get; set; } = new SchedulesBaringRepository();
 
     internal static async Task Setup()
     {
@@ -87,11 +90,73 @@ internal sealed class SynchroniserService
     {
         try
         {
-            //TOD: Implement SynchroniseTriggers
+            var quartzGroupNames = (await Scheduler.GetJobGroupNames()).Where(x => x.Equals(Constants.SynchroniserGroupName) == false);
+            if (quartzGroupNames.Any())
+            {
+                var triggerDefinitions = await SchedulesBaringRepository.GetAllTriggerDefinitionsAsync();
+                foreach (var groupName in quartzGroupNames)
+                {
+                    foreach (var triggerDefinition in triggerDefinitions.Where(x => x.JobGroupName == groupName))
+                    {
+                        var quartzTriggerKey = new TriggerKey(triggerDefinition.ScheduleName!, triggerDefinition.JobGroupName!);
+                        var quartzTrigger = await Scheduler.GetTrigger(quartzTriggerKey);
+                        if (quartzTrigger == null)
+                        {
+                            await AddTrigger(triggerDefinition);
+                        }
+                        else if (((ICronTrigger)quartzTrigger)?.CronExpressionString?.Equals(triggerDefinition.CronSchedule) == false)
+                        {
+                            await ChangeTriggerCronExpression(triggerDefinition, quartzTrigger);
+                        }
+                    }
+                }
+            }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Error in SynchroniserService.SynchroniseTriggers");
+            throw;
+        }
+    }
+
+    private static async Task AddTrigger(Models.TriggerDefinition triggerDefinition)
+    {
+        try
+        {
+            var newTrigger = TriggerBuilder.Create()
+                .WithIdentity(triggerDefinition.ScheduleName!, triggerDefinition.JobGroupName!)
+                .ForJob(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!))
+                .WithPriority(StandardJobPriority)
+                .WithCronSchedule(
+                    triggerDefinition.CronSchedule!,
+                    x => x.WithMisfireHandlingInstructionFireAndProceed())
+                .Build();
+            _ = await Scheduler.ScheduleJob(newTrigger);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error in SynchroniserService.AddTrigger");
+            throw;
+        }
+    }
+
+    private static async Task ChangeTriggerCronExpression(Models.TriggerDefinition triggerDefinition, ITrigger quartzTrigger)
+    {
+        try
+        {
+            var newTrigger = TriggerBuilder.Create()
+                .WithIdentity(triggerDefinition.ScheduleName!, triggerDefinition.JobGroupName!)
+                .ForJob(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!))
+                .WithPriority(StandardJobPriority)
+                .WithCronSchedule(
+                    triggerDefinition.CronSchedule!,
+                    x => x.WithMisfireHandlingInstructionFireAndProceed())
+                .Build();
+            _ = await Scheduler.RescheduleJob(quartzTrigger.Key, newTrigger);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error in SynchroniserService.ChangeTriggerCronExpression");
             throw;
         }
     }
@@ -125,7 +190,7 @@ internal sealed class SynchroniserService
                 var existingJob = await Scheduler.GetJobDetail(scheduledJob.Key);
                 if (existingJob == null)
                 {
-                    var job = JobBuilder.Create<SynchroniserJob>()
+                    var job = JobBuilder.Create(scheduledJob.JobType)
                         .WithIdentity(scheduledJob.Key)
                         .WithDescription(scheduledJob.Description)
                         .StoreDurably()
