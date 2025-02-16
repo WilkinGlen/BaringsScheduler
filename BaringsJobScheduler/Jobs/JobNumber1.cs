@@ -2,6 +2,7 @@
 
 using Quartz;
 using Serilog;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 public sealed class JobNumber1 : IJob
@@ -11,6 +12,7 @@ public sealed class JobNumber1 : IJob
         try
         {
             await Console.Out.WriteLineAsync("JobNumber1 executed");
+            Debug.WriteLine("JobNumber1 executed");
         }
         catch (Exception ex)
         {
