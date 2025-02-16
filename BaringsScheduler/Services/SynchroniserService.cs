@@ -40,7 +40,7 @@ internal sealed class SynchroniserService
 
     private static readonly List<IJobDetail> scheduledJobDetails = [];
 
-    private static ServiceCollection serviceCollection = [];
+    private static readonly ServiceCollection serviceCollection = [];
 
     internal SynchroniserService(IConfiguration configuration) => ExtractConfigSettings(configuration);
 
@@ -64,6 +64,7 @@ internal sealed class SynchroniserService
                 .DisallowConcurrentExecution(true)
                 .Build());
             _ = serviceCollection.AddScoped<T>();
+            Log.Information($"Scheduled job {jobName} added to group {groupName}");
         }
         catch (Exception ex)
         {
@@ -132,6 +133,7 @@ internal sealed class SynchroniserService
                     x => x.WithMisfireHandlingInstructionFireAndProceed())
                 .Build();
             _ = await Scheduler.ScheduleJob(newTrigger);
+            Log.Information($"Trigger {triggerDefinition.ScheduleName} for job {newTrigger.JobKey.Name}  added to group {triggerDefinition.JobGroupName}");
         }
         catch (Exception ex)
         {
@@ -153,6 +155,7 @@ internal sealed class SynchroniserService
                     x => x.WithMisfireHandlingInstructionFireAndProceed())
                 .Build();
             _ = await Scheduler.RescheduleJob(quartzTrigger.Key, newTrigger);
+            Log.Information($"Trigger {triggerDefinition.ScheduleName} for job {newTrigger.JobKey.Name}  in group {triggerDefinition.JobGroupName} updated to: {triggerDefinition.CronSchedule}");
         }
         catch (Exception ex)
         {
@@ -171,6 +174,7 @@ internal sealed class SynchroniserService
                 if (scheduledJobDetails.FirstOrDefault(x => x.Key.Group == existingJob.Group && x.Key.Name == existingJob.Name) == null)
                 {
                     _ = await Scheduler.DeleteJob(existingJob);
+                    Log.Information($"Job {existingJob.Name} in group {existingJob.Group} deleted");
                 }
             }
         }
@@ -198,6 +202,7 @@ internal sealed class SynchroniserService
                         .DisallowConcurrentExecution(true)
                         .Build();
                     await Scheduler.AddJob(job, true);
+                    Log.Information($"Job {scheduledJob.Key.Name} in group {scheduledJob.Key.Group} added");
                 }
             }
         }
@@ -252,6 +257,7 @@ internal sealed class SynchroniserService
                 .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
                 .Build();
             _ = await Scheduler.ScheduleJob(job, trigger);
+            Log.Information($"Job {Constants.SynchroniserJobName} in group {Constants.SynchroniserGroupName} added with trigger {Constants.SynchroniserTriggerName}");
         }
         catch (Exception ex)
         {
@@ -278,6 +284,7 @@ internal sealed class SynchroniserService
                             .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
                             .Build();
                         _ = await Scheduler.RescheduleJob(new TriggerKey(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName), trigger);
+                        Log.Information($"Trigger {Constants.SynchroniserTriggerName} for job {trigger.JobKey.Name} in group {Constants.SynchroniserGroupName} updated to: {expectedRunPeriodMinutes}");
                     }
                 }
             }
@@ -290,6 +297,7 @@ internal sealed class SynchroniserService
                             .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
                             .Build();
                 _ = await Scheduler.ScheduleJob(trigger);
+                Log.Information($"Trigger {Constants.SynchroniserTriggerName} for job {trigger.JobKey.Name} in group {Constants.SynchroniserGroupName} added with cron schedule: {expectedRunPeriodMinutes}");
             }
         }
         catch (Exception ex)

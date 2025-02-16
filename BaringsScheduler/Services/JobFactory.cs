@@ -12,7 +12,7 @@ internal class JobFactory(IServiceProvider serviceProvider) : IJobFactory
 
     public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
     {
-        var scope = serviceProvider?.CreateScope();
+        var scope = this.serviceProvider?.CreateScope();
         IJob? job;
         try
         {

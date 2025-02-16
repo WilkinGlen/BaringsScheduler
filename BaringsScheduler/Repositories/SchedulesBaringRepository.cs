@@ -3,7 +3,7 @@
 using BaringsScheduler.Models;
 using Serilog;
 
-internal class SchedulesBaringRepository
+internal sealed class SchedulesBaringRepository
 {
     internal async Task<IEnumerable<TriggerDefinition>> GetAllTriggerDefinitionsAsync()
     {

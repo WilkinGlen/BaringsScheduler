@@ -12,7 +12,7 @@ internal sealed class SchedulerFactoryPropertiesService
             ["quartz.jobStore.driverDelegateType"] = "Quartz.Impl.AdoJobStore.StdAdoDelegate, Quartz",
             ["quartz.jobStore.tablePrefix"] = "QRTZ_",
             ["quartz.jobStore.dataSource"] = "myDS",
-            ["quartz.serializer.type"] = "json",
+            ["quartz.serializer.type"] = "newtonsoft",
             ["quartz.dataSource.myDS.connectionString"] = quartzDatabaseConnectionString,
             ["quartz.dataSource.myDS.provider"] = "SqlServer",
             ["quartz.threadPool.maxConcurrency"] = "10"

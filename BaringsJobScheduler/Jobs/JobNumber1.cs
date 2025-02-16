@@ -1,9 +1,24 @@
 ﻿namespace BaringsJobScheduler.Jobs;
 
 using Quartz;
+using Serilog;
 using System.Threading.Tasks;
 
 public sealed class JobNumber1 : IJob
 {
-    public Task Execute(IJobExecutionContext context) => Console.Out.WriteLineAsync("JobNumber1 executed");
+    public async Task Execute(IJobExecutionContext context)
+    {
+        try
+        {
+            await Console.Out.WriteLineAsync("JobNumber1 executed");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "JobNumber1 failed");
+        }
+        finally
+        {
+            //Write result to database when we have the table
+        }
+    }
 }

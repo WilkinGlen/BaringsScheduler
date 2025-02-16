@@ -1,10 +1,10 @@
 ﻿namespace BaringsScheduler.Services;
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Quartz;
+using Serilog;
 
-public class SynchroniserServiceBuilder
+public sealed class SynchroniserServiceBuilder
 {
     private SynchroniserService? synchroniserService;
 
@@ -15,6 +15,18 @@ public class SynchroniserServiceBuilder
     public SynchroniserServiceBuilder WithConfiguration(IConfiguration configuration)
     {
         this.synchroniserService = new SynchroniserService(configuration);
+        Log.Information("SynchroniserServiceBuilder created with configuration");
+        return this;
+    }
+
+    public SynchroniserServiceBuilder WithLoggingToFile(string logFilePath)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.File(logFilePath)
+            .MinimumLevel.Information()
+            .CreateLogger();
+        Log.Information($"Logging to file {logFilePath}");
+
         return this;
     }
 
@@ -31,6 +43,7 @@ public class SynchroniserServiceBuilder
             throw new InvalidOperationException("SynchroniserService is not set, or WithConfigutation(IConfiguration configuration) not called");
         }
 
+        Log.Information("SynchroniserServiceBuilder built");
         await SynchroniserService.Setup();
     }
 }
