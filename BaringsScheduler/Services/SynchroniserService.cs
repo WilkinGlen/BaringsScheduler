@@ -14,6 +14,10 @@ internal sealed class SynchroniserService
     private const int SyncJobPriority = 5;
     private const int StandardJobPriority = 10;
 
+    private static readonly List<IJobDetail> scheduledJobDetails = [];
+    private static readonly ServiceCollection serviceCollection = [];
+    private static readonly SchedulesBaringRepository schedulesBaringRepository = new ();
+
     private static IScheduler? scheduler;
     private static IScheduler Scheduler
     {
@@ -38,13 +42,7 @@ internal sealed class SynchroniserService
         }
     }
 
-    private static readonly List<IJobDetail> scheduledJobDetails = [];
-
-    private static readonly ServiceCollection serviceCollection = [];
-
     internal SynchroniserService(IConfiguration configuration) => ExtractConfigSettings(configuration);
-
-    internal static SchedulesBaringRepository SchedulesBaringRepository { get; set; } = new SchedulesBaringRepository();
 
     internal static async Task Setup()
     {
@@ -94,7 +92,7 @@ internal sealed class SynchroniserService
             var quartzGroupNames = (await Scheduler.GetJobGroupNames()).Where(x => x.Equals(Constants.SynchroniserGroupName) == false);
             if (quartzGroupNames.Any())
             {
-                var triggerDefinitions = await SchedulesBaringRepository.GetAllTriggerDefinitionsAsync();
+                var triggerDefinitions = await schedulesBaringRepository.GetAllTriggerDefinitionsAsync();
                 foreach (var groupName in quartzGroupNames)
                 {
                     foreach (var triggerDefinition in triggerDefinitions.Where(x => x.JobGroupName == groupName))
