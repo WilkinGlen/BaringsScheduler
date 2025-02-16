@@ -19,10 +19,10 @@ public sealed class SynchroniserServiceBuilder
         return this;
     }
 
-    public SynchroniserServiceBuilder WithLoggingToFile(string logFilePath)
+    public SynchroniserServiceBuilder WithLoggingToFile(string logFilePath, RollingInterval rollingInterval = RollingInterval.Day)
     {
         Log.Logger = new LoggerConfiguration()
-            .WriteTo.File(logFilePath)
+            .WriteTo.File(logFilePath, rollingInterval: rollingInterval)
             .MinimumLevel.Information()
             .CreateLogger();
         Log.Information($"Logging to file {logFilePath}");

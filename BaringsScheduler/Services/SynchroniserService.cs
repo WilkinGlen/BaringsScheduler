@@ -110,12 +110,36 @@ internal sealed class SynchroniserService
                             await ChangeTriggerCronExpression(triggerDefinition, quartzTrigger);
                         }
                     }
+
+                    await DeleteOldTriggers(triggerDefinitions, groupName);
                 }
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Error in SynchroniserService.SynchroniseTriggers");
+            throw;
+        }
+    }
+
+    private static async Task DeleteOldTriggers(IEnumerable<Models.TriggerDefinition> triggerDefinitions, string groupName)
+    {
+        try
+        {
+            var oldTriggers = await Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.GroupEquals(groupName));
+            if (oldTriggers?.Count > 0)
+            {
+                oldTriggers = [.. oldTriggers.Where(x => triggerDefinitions.Select(y => y.ScheduleName).Contains(x.Name) == false)];
+                foreach (var trigger in oldTriggers)
+                {
+                    _ = await Scheduler.UnscheduleJob(trigger);
+                    Log.Information($"Trigger {trigger.Name} in group {trigger.Group} deleted");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error in SynchroniserService.DeleteOldTrigers");
             throw;
         }
     }

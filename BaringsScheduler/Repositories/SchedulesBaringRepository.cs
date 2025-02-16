@@ -14,22 +14,22 @@ internal sealed class SchedulesBaringRepository
                 new ()
                 {
                     Id = 1,
-                    ScheduleName = "Every2Minutes",
+                    ScheduleName = "Every2Minute",
                     JobName = "JobNumber1",
                     JobDescription = "JobNumber1 description",
                     JobClassName = "BaringsJobScheduler.Jobs.JobNumber1, BaringsJobScheduler",
-                    JobGroupName = "GroupNumber1",
+                    JobGroupName = "BaringsJobScheduler",
                     CronSchedule = "0 0/2 * * * ?"
                 },
                 new ()
                 {
                     Id = 2,
-                    ScheduleName = "Every5Minutes",
+                    ScheduleName = "Every3Minutes",
                     JobName = "JobNumber2",
                     JobDescription = "JobNumber2 description",
                     JobClassName = "BaringsJobScheduler.Jobs.JobNumber2, BaringsJobScheduler",
-                    JobGroupName = "GroupNumber1",
-                    CronSchedule = "0 0/5 * * * ?"
+                    JobGroupName = "BaringsJobScheduler",
+                    CronSchedule = "0 0/3 * * * ?"
                 }
             });
         }
