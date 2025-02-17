@@ -39,4 +39,27 @@ internal sealed class SchedulesBaringRepository
             throw;
         }
     }
+
+    internal async Task<IEnumerable<TriggerDefinition>> GetAllOneOffTriggerDefinitionsAsync()
+    {
+        try
+        {
+            return await Task.FromResult(new List<TriggerDefinition>()
+            {
+                new ()
+                {
+                    Id = 1,
+                    JobName = "JobNumber3",
+                    JobDescription = "JobNumber3 description",
+                    JobClassName = "BaringsJobScheduler.Jobs.JobNumber3, BaringsJobScheduler",
+                    JobGroupName = "BaringsJobScheduler"
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error in SchedulesBaringRepository.GetAllOneOffTriggerDefinitionsAsync");
+            throw;
+        }
+    }
 }

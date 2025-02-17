@@ -2,6 +2,7 @@
 
 using BaringsScheduler.Services;
 using Quartz;
+using Serilog;
 
 public sealed class SynchroniserJob : IJob
 {
@@ -11,10 +12,12 @@ public sealed class SynchroniserJob : IJob
         {
             await SynchroniserService.SynchroniseJobs();
             await SynchroniserService.SynchroniseTriggers();
+            await SynchroniserService.SynchroniseOneOffTriggers();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             //We must catch and handle all exceptions in a job
+            Log.Error(ex, "Error in SynchroniserJob.Execute failed");
         }
         finally
         {

@@ -120,6 +120,39 @@ internal sealed class SynchroniserService
         }
     }
 
+    internal static async Task SynchroniseOneOffTriggers()
+    {
+        try
+        {
+            var oneOffTriggerDefinitions = await schedulesBaringRepository.GetAllOneOffTriggerDefinitionsAsync();
+            foreach (var oneOffTriggerDefinition in oneOffTriggerDefinitions)
+            {
+                var jobKey = new JobKey(oneOffTriggerDefinition.JobName!, oneOffTriggerDefinition.JobGroupName!);
+                var job = await Scheduler.GetJobDetail(jobKey);
+                if (job == null)
+                {
+                    Log.Warning($"Job {jobKey.Name} in group {jobKey.Group} not found for one-off trigger");
+                    continue;
+                }
+
+                var triggerKey = new TriggerKey("[OneOff]", jobKey.Group);
+                var trigger = TriggerBuilder.Create()
+                    .WithIdentity(triggerKey)
+                    .ForJob(job)
+                    .WithPriority(StandardJobPriority)
+                    .StartNow()
+                    .Build();
+                _ = await Scheduler.ScheduleJob(trigger);
+                Log.Information($"One-off trigger for job {jobKey.Name} in group {jobKey.Group} added");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error in SynchroniserService.SynchroniseOneOffTriggers");
+            throw;
+        }
+    }
+
     private static async Task DeleteOldTriggers(IEnumerable<Models.TriggerDefinition> triggerDefinitions, string groupName)
     {
         try

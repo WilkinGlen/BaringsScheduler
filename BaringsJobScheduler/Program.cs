@@ -12,6 +12,7 @@ await SynchroniserServiceBuilder
     .WithConfiguration(builder.Configuration)
     .WithScheduledJob<JobNumber1>(applicationName, "JobNumber1", "JobNumber1 description")
     .WithScheduledJob<JobNumber2>(applicationName, "JobNumber2", "JobNumber2 description")
+    .WithScheduledJob<JobNumber3>(applicationName, "JobNumber3", "JobNumber3 description")
     .Build();
 
 var app = builder.Build();

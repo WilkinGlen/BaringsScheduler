@@ -3,20 +3,20 @@
 using Quartz;
 using Serilog;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
-public sealed class JobNumber1 : IJob
+public class JobNumber3 : IJob
 {
     public async Task Execute(IJobExecutionContext context)
     {
         try
         {
-            await Console.Out.WriteLineAsync("JobNumber1 executed");
-            Debug.WriteLine($"JobNumber1 executed: {DateTime.UtcNow}");
+            Task.Delay(3000).Wait();
+            await Console.Out.WriteLineAsync("JobNumber3 executed");
+            Debug.WriteLine($"JobNumber3 executed: {DateTime.UtcNow}");
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "JobNumber1 failed");
+            Log.Error(ex, "JobNumber3 failed");
         }
         finally
         {

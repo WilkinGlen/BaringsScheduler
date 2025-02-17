@@ -12,7 +12,7 @@ public sealed class JobNumber2 : IJob
         try
         {
             await Console.Out.WriteLineAsync("JobNumber2 executed");
-            Debug.WriteLine("JobNumber2 executed");
+            Debug.WriteLine($"JobNumber2 executed: {DateTime.UtcNow}");
         }
         catch (Exception ex)
         {
