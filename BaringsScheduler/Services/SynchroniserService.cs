@@ -16,7 +16,7 @@ internal sealed class SynchroniserService
 
     private static readonly List<IJobDetail> scheduledJobDetails = [];
     private static readonly ServiceCollection serviceCollection = [];
-    private static readonly SchedulesBaringRepository schedulesBaringRepository = new ();
+    private static readonly SchedulesBaringRepository schedulesBaringRepository = new();
 
     private static IScheduler? scheduler;
     private static IScheduler Scheduler
