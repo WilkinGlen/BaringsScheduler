@@ -15,7 +15,7 @@ await SynchroniserServiceBuilder
     .WithScheduledJob<JobNumber3>(applicationName, "JobNumber3", "JobNumber3 description")
     .Build();
 
-ISchedulesService schedulesInterrogator = new SchedulesService(builder.Configuration);
+var schedulesInterrogator = new SchedulesService(builder.Configuration);
 foreach (var job in await schedulesInterrogator.GetAllJobsAsync())
 {
     Console.WriteLine(job?.Description);
