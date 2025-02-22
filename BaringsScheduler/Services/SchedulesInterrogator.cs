@@ -11,6 +11,10 @@ public interface ISchedulesInterrogator
     Task<IEnumerable<IJobDetail?>> GetAllJobsAsync();
 
     Task<IEnumerable<ITrigger?>> GetAllTriggersAsync();
+
+    Task DeleteAllFailedTriggers();
+
+    Task DeleteAllTriggers();
 }
 
 public sealed class SchedulesInterrogator(IConfiguration configuration) : ISchedulesInterrogator
@@ -51,4 +55,25 @@ public sealed class SchedulesInterrogator(IConfiguration configuration) : ISched
     public async Task<IEnumerable<ITrigger?>> GetAllTriggersAsync() =>
         await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup())
             .ContinueWith(task => task.Result.Select(triggerKey => this.Scheduler.GetTrigger(triggerKey).Result));
+
+    public async Task DeleteAllFailedTriggers()
+    {
+        var triggers = await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup());
+        foreach (var triggerKey in triggers)
+        {
+            if (await this.Scheduler.GetTriggerState(triggerKey) == TriggerState.Error)
+            {
+                _ = await this.Scheduler.UnscheduleJob(triggerKey);
+            }
+        }
+    }
+
+    public async Task DeleteAllTriggers()
+    {
+        var triggers = await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup());
+        foreach (var triggerKey in triggers)
+        {
+            _ = await this.Scheduler.UnscheduleJob(triggerKey);
+        }
+    }
 }

@@ -184,7 +184,7 @@ internal sealed class SynchroniserService
     {
         try
         {
-            if(await Scheduler.CheckExists(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!)) == false)
+            if (await Scheduler.CheckExists(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!)) == false)
             {
                 Log.Warning($"Job {triggerDefinition.JobName} in group {triggerDefinition.JobGroupName} not found for trigger {triggerDefinition.ScheduleName}");
                 return;
