@@ -1,6 +1,7 @@
 ﻿namespace BaringsScheduler.Services;
 
 using BaringsScheduler.Jobs;
+using BaringsScheduler.Listeners;
 using BaringsScheduler.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,11 +57,16 @@ internal sealed class SynchroniserService
 
         schedulesBaringRepository = new SchedulesBaringRepository(Constants.SchedulerDatabaseConnectionString);
         Log.Information($"SchedulesBaringRepository setup with database: {Constants.SchedulerDatabaseConnectionString}");
+
         await CreateOrEditSynchroniserJob();
+
         Scheduler.JobFactory = new JobFactory(serviceCollection.BuildServiceProvider());
+        Scheduler.ListenerManager.AddJobListener(new BaringsJobListener());
+
         await SynchroniseJobs();
         await SynchroniseTriggers();
         await SynchroniseOneOffTriggers();
+
         await Scheduler.Start();
     }
 

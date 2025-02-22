@@ -39,7 +39,7 @@ public sealed class SchedulesService(IConfiguration configuration) : ISchedulesS
             {
                 if (this.scheduler == null)
                 {
-                    if (configuration.GetConnectionString("QuartzDatabaseConnectionString") == null)
+                    if (string.IsNullOrWhiteSpace(configuration.GetConnectionString("QuartzDatabaseConnectionString")))
                     {
                         throw new Exception("QuartzDatabaseConnectionString is null");
                     }

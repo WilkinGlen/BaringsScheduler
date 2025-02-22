@@ -10,18 +10,19 @@ public sealed class SynchroniserJob : IJob
     {
         try
         {
+            context.MergedJobDataMap.Clear();
+
             await SynchroniserService.SynchroniseJobs();
             await SynchroniserService.SynchroniseTriggers();
             await SynchroniserService.SynchroniseOneOffTriggers();
+
+            context.MergedJobDataMap.Add(Constants.SynchroniserJobName, Constants.SucceededMessage);
         }
         catch (Exception ex)
         {
             //We must catch and handle all exceptions in a job
             Log.Error(ex, "Error in SynchroniserJob.Execute failed");
-        }
-        finally
-        {
-            //Write result to database when we have the table
+            context.MergedJobDataMap.Add(Constants.SynchroniserJobName, ex.Message);
         }
     }
 }

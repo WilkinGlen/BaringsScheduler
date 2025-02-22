@@ -1,7 +1,9 @@
 ﻿namespace BaringsScheduler.Services;
 
-internal static class Constants
+public static class Constants
 {
+    public const string SucceededMessage = "Succeeded";
+
     internal const string SynchroniserGroupName = "SYNC_GROUP_NAME";
 
     internal const string SynchroniserJobName = "SYNC_JOB_NAME";

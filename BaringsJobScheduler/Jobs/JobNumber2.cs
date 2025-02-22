@@ -1,5 +1,6 @@
 ﻿namespace BaringsJobScheduler.Jobs;
 
+using BaringsScheduler.Services;
 using Quartz;
 using Serilog;
 using System.Diagnostics;
@@ -11,16 +12,18 @@ public sealed class JobNumber2 : IJob
     {
         try
         {
+            context.MergedJobDataMap.Clear();
+
             await Console.Out.WriteLineAsync($"JobNumber2 executed: {DateTime.UtcNow}");
             Debug.WriteLine($"JobNumber2 executed: {DateTime.UtcNow}");
+
+            context.MergedJobDataMap.Add("JobNumber2", Constants.SucceededMessage);
+
         }
         catch (Exception ex)
         {
             Log.Error(ex, "JobNumber2 failed");
-        }
-        finally
-        {
-            //Write result to database when we have the table
+            context.MergedJobDataMap.Add("JobNumber2", ex.Message);
         }
     }
 }
