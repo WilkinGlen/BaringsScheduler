@@ -10,6 +10,8 @@ internal static class Constants
 
     internal const string SynchroniserTriggerName = "SYNC_TRIGGER_NAME";
 
+    internal const string SynchroniserTriggerDescription = "This is the trigger that schedules the job to synchronise Quartz and the client";
+
     internal static string? QuartzDatabaseConnectionString { get; set; }
 
     internal static string? SchedulerDatabaseConnectionString { get; set; }

@@ -48,6 +48,10 @@ internal sealed class SynchroniserService
     {
         await CreateOrEditSynchroniserJob();
         Scheduler.JobFactory = new JobFactory(serviceCollection.BuildServiceProvider());
+        await SynchroniseJobs();
+        await SynchroniseTriggers();
+        await SynchroniseOneOffTriggers();
+        await Scheduler.Start();
     }
 
     internal static void AddScheduledJob<T>(string groupName, string jobName, string jobDescription) where T : class, IJob
@@ -138,6 +142,7 @@ internal sealed class SynchroniserService
                 var triggerKey = new TriggerKey("[OneOff]", jobKey.Group);
                 var trigger = TriggerBuilder.Create()
                     .WithIdentity(triggerKey)
+                    .WithDescription(oneOffTriggerDefinition.ScheduleDescription)
                     .ForJob(job)
                     .WithPriority(StandardJobPriority)
                     .StartNow()
@@ -181,6 +186,7 @@ internal sealed class SynchroniserService
         {
             var newTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerDefinition.ScheduleName!, triggerDefinition.JobGroupName!)
+                .WithDescription(triggerDefinition.ScheduleDescription)
                 .ForJob(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!))
                 .WithPriority(StandardJobPriority)
                 .WithCronSchedule(
@@ -203,6 +209,7 @@ internal sealed class SynchroniserService
         {
             var newTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerDefinition.ScheduleName!, triggerDefinition.JobGroupName!)
+                .WithDescription(triggerDefinition.ScheduleDescription)
                 .ForJob(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!))
                 .WithPriority(StandardJobPriority)
                 .WithCronSchedule(
@@ -284,7 +291,6 @@ internal sealed class SynchroniserService
             }
 
             _ = serviceCollection.AddScoped<SynchroniserJob>();
-            await Scheduler.Start();
         }
         catch (Exception ex)
         {
@@ -307,6 +313,7 @@ internal sealed class SynchroniserService
                 .Build();
             var trigger = TriggerBuilder.Create()
                 .WithIdentity(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName)
+                .WithDescription(Constants.SynchroniserTriggerDescription)
                 .WithPriority(SyncJobPriority)
                 .StartNow()
                 .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())

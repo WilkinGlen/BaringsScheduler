@@ -11,7 +11,7 @@ public class JobNumber3 : IJob
         try
         {
             Task.Delay(3000).Wait();
-            await Console.Out.WriteLineAsync("JobNumber3 executed");
+            await Console.Out.WriteLineAsync($"JobNumber3 executed: {DateTime.UtcNow}");
             Debug.WriteLine($"JobNumber3 executed: {DateTime.UtcNow}");
         }
         catch (Exception ex)

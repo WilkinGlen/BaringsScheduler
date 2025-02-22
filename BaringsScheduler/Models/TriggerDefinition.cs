@@ -6,6 +6,8 @@ internal sealed class TriggerDefinition
 
     internal string? ScheduleName { get; set; }
 
+    internal string? ScheduleDescription { get; set; }
+
     internal string? JobName { get; set; }
 
     internal string? JobDescription { get; set; }

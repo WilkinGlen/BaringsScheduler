@@ -15,6 +15,7 @@ internal sealed class SchedulesBaringRepository
                 {
                     Id = 1,
                     ScheduleName = "Every2Minute",
+                    ScheduleDescription = "Every 2 minutes trigger",
                     JobName = "JobNumber1",
                     JobDescription = "JobNumber1 description",
                     JobClassName = "BaringsJobScheduler.Jobs.JobNumber1, BaringsJobScheduler",
@@ -25,6 +26,7 @@ internal sealed class SchedulesBaringRepository
                 {
                     Id = 2,
                     ScheduleName = "Every3Minutes",
+                    ScheduleDescription = "Every 3 minutes trigger",
                     JobName = "JobNumber2",
                     JobDescription = "JobNumber2 description",
                     JobClassName = "BaringsJobScheduler.Jobs.JobNumber2, BaringsJobScheduler",
@@ -49,6 +51,8 @@ internal sealed class SchedulesBaringRepository
                 new ()
                 {
                     Id = 1,
+                    ScheduleName = "OneOff",
+                    ScheduleDescription = "OneOff",
                     JobName = "JobNumber3",
                     JobDescription = "JobNumber3 description",
                     JobClassName = "BaringsJobScheduler.Jobs.JobNumber3, BaringsJobScheduler",
