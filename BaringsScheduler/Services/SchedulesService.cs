@@ -12,14 +12,25 @@ public interface ISchedulesInterrogator
 
     Task<IEnumerable<ITrigger?>> GetAllTriggersAsync();
 
-    Task DeleteAllFailedTriggers();
+    Task DeleteAllFailedTriggersAsync();
 
-    Task DeleteAllTriggers();
+    Task DeleteAllTriggersAsync();
+
+    Task DeleteAllFailedTriggersFromGroupAsync(string groupName);
+
+    Task DeleteAllTriggersFromGroupAsync(string groupName);
 }
 
-public sealed class SchedulesInterrogator(IConfiguration configuration) : ISchedulesInterrogator
+/// <summary>
+/// Service for managing and interrogating Quartz schedules.
+/// </summary>
+public sealed class SchedulesService(IConfiguration configuration) : ISchedulesInterrogator
 {
     private IScheduler? scheduler;
+
+    /// <summary>
+    /// Gets the Quartz scheduler instance.
+    /// </summary>
     private IScheduler Scheduler
     {
         get
@@ -48,15 +59,26 @@ public sealed class SchedulesInterrogator(IConfiguration configuration) : ISched
         }
     }
 
+    /// <summary>
+    /// Gets all job details.
+    /// </summary>
+    /// <returns>A collection of job details.</returns>
     public async Task<IEnumerable<IJobDetail?>> GetAllJobsAsync() =>
         await this.Scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup())
             .ContinueWith(task => task.Result.Select(jobKey => this.Scheduler.GetJobDetail(jobKey).Result));
 
+    /// <summary>
+    /// Gets all triggers.
+    /// </summary>
+    /// <returns>A collection of triggers.</returns>
     public async Task<IEnumerable<ITrigger?>> GetAllTriggersAsync() =>
         await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup())
             .ContinueWith(task => task.Result.Select(triggerKey => this.Scheduler.GetTrigger(triggerKey).Result));
 
-    public async Task DeleteAllFailedTriggers()
+    /// <summary>
+    /// Deletes all failed triggers.
+    /// </summary>
+    public async Task DeleteAllFailedTriggersAsync()
     {
         var triggers = await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup());
         foreach (var triggerKey in triggers)
@@ -68,9 +90,41 @@ public sealed class SchedulesInterrogator(IConfiguration configuration) : ISched
         }
     }
 
-    public async Task DeleteAllTriggers()
+    /// <summary>
+    /// Deletes all triggers.
+    /// </summary>
+    public async Task DeleteAllTriggersAsync()
     {
         var triggers = await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup());
+        foreach (var triggerKey in triggers)
+        {
+            _ = await this.Scheduler.UnscheduleJob(triggerKey);
+        }
+    }
+
+    /// <summary>
+    /// Deletes all failed triggers from a specific group.
+    /// </summary>
+    /// <param name="groupName">The name of the group.</param>
+    public async Task DeleteAllFailedTriggersFromGroupAsync(string groupName)
+    {
+        var triggers = await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.GroupEquals(groupName));
+        foreach (var triggerKey in triggers)
+        {
+            if (await this.Scheduler.GetTriggerState(triggerKey) == TriggerState.Error)
+            {
+                _ = await this.Scheduler.UnscheduleJob(triggerKey);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Deletes all triggers from a specific group.
+    /// </summary>
+    /// <param name="groupName">The name of the group.</param>
+    public async Task DeleteAllTriggersFromGroupAsync(string groupName)
+    {
+        var triggers = await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.GroupEquals(groupName));
         foreach (var triggerKey in triggers)
         {
             _ = await this.Scheduler.UnscheduleJob(triggerKey);
