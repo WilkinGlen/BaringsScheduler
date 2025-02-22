@@ -6,7 +6,7 @@ using Quartz.Impl;
 using Quartz.Impl.Matchers;
 using Serilog;
 
-public interface ISchedulesInterrogator
+public interface ISchedulesService
 {
     Task<IEnumerable<IJobDetail?>> GetAllJobsAsync();
 
@@ -24,7 +24,7 @@ public interface ISchedulesInterrogator
 /// <summary>
 /// Service for managing and interrogating Quartz schedules.
 /// </summary>
-public sealed class SchedulesService(IConfiguration configuration) : ISchedulesInterrogator
+public sealed class SchedulesService(IConfiguration configuration) : ISchedulesService
 {
     private IScheduler? scheduler;
 
