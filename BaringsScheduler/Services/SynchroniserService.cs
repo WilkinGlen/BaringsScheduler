@@ -16,7 +16,7 @@ internal sealed class SynchroniserService
 
     private static readonly List<IJobDetail> scheduledJobDetails = [];
     private static readonly ServiceCollection serviceCollection = [];
-    private static readonly SchedulesBaringRepository schedulesBaringRepository = new();
+    private static SchedulesBaringRepository? schedulesBaringRepository;
 
     private static IScheduler? scheduler;
     private static IScheduler Scheduler
@@ -30,6 +30,7 @@ internal sealed class SynchroniserService
                     var factoryProperties = SchedulerFactoryPropertiesService.GetFactoryProperties(Constants.QuartzDatabaseConnectionString!);
                     var schedulerFactory = new StdSchedulerFactory(factoryProperties);
                     scheduler = schedulerFactory.GetScheduler().Result;
+                    Log.Information($"Scheduler created for database: {Constants.QuartzDatabaseConnectionString}");
                 }
 
                 return scheduler;
@@ -46,6 +47,15 @@ internal sealed class SynchroniserService
 
     internal static async Task Setup()
     {
+        if (string.IsNullOrWhiteSpace(Constants.SchedulerDatabaseConnectionString))
+        {
+            const string message = "SchedulerDatabaseConnectionString is null or empty. Cannot create SchedulesBaringRepository.";
+            Log.Error(message);
+            throw new ArgumentException(message);
+        }
+
+        schedulesBaringRepository = new SchedulesBaringRepository(Constants.SchedulerDatabaseConnectionString);
+        Log.Information($"SchedulesBaringRepository setup with database: {Constants.SchedulerDatabaseConnectionString}");
         await CreateOrEditSynchroniserJob();
         Scheduler.JobFactory = new JobFactory(serviceCollection.BuildServiceProvider());
         await SynchroniseJobs();
@@ -96,7 +106,7 @@ internal sealed class SynchroniserService
             var quartzGroupNames = (await Scheduler.GetJobGroupNames()).Where(x => x.Equals(Constants.SynchroniserGroupName) == false);
             if (quartzGroupNames.Any())
             {
-                var triggerDefinitions = await schedulesBaringRepository.GetAllTriggerDefinitionsAsync();
+                var triggerDefinitions = await schedulesBaringRepository!.GetAllTriggerDefinitionsAsync();
                 foreach (var groupName in quartzGroupNames)
                 {
                     foreach (var triggerDefinition in triggerDefinitions.Where(x => x.JobGroupName == groupName))
@@ -128,7 +138,7 @@ internal sealed class SynchroniserService
     {
         try
         {
-            var oneOffTriggerDefinitions = await schedulesBaringRepository.GetAllOneOffTriggerDefinitionsAsync();
+            var oneOffTriggerDefinitions = await schedulesBaringRepository!.GetAllOneOffTriggerDefinitionsAsync();
             foreach (var oneOffTriggerDefinition in oneOffTriggerDefinitions)
             {
                 var jobKey = new JobKey(oneOffTriggerDefinition.JobName!, oneOffTriggerDefinition.JobGroupName!);
@@ -380,11 +390,26 @@ internal sealed class SynchroniserService
         try
         {
             Constants.QuartzDatabaseConnectionString = configuration.GetConnectionString("QuartzDatabaseConnectionString");
+            if (string.IsNullOrWhiteSpace(Constants.QuartzDatabaseConnectionString))
+            {
+                throw new ArgumentException("QuartzDatabaseConnectionString is required but was not configured");
+            }
+
             Constants.SchedulerDatabaseConnectionString = configuration.GetConnectionString("SchedulerDatabaseConnectionString");
+            if (string.IsNullOrWhiteSpace(Constants.SchedulerDatabaseConnectionString))
+            {
+                throw new ArgumentException("SchedulerDatabaseConnectionString is required but was not configured");
+            }
+
+            if (!configuration.GetSection("SynchroniserRunPeriodMinutes").Exists())
+            {
+                throw new ArgumentException("SynchroniserRunPeriodMinutes is required but was not configured");
+            }
+
             var runPeriod = configuration.GetValue<int>("SynchroniserRunPeriodMinutes");
             Constants.SynchroniserRunPeriodMinutes = runPeriod == 0 ? 10 : runPeriod;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ArgumentException)
         {
             Log.Error(ex, "Error in SynchroniserService.ExtractConfigSettings");
             throw;
