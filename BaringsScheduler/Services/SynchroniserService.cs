@@ -46,7 +46,7 @@ internal sealed class SynchroniserService
 
     internal SynchroniserService(IConfiguration configuration) => ExtractConfigSettings(configuration);
 
-    internal static async Task Setup()
+    internal static async Task Setup(CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(Constants.SchedulerDatabaseConnectionString))
         {
@@ -58,19 +58,22 @@ internal sealed class SynchroniserService
         schedulesBaringRepository = new SchedulesBaringRepository(Constants.SchedulerDatabaseConnectionString);
         Log.Information($"SchedulesBaringRepository setup with database: {Constants.SchedulerDatabaseConnectionString}");
 
-        await CreateOrEditSynchroniserJob();
+        await CreateOrEditSynchroniserJob(cancellationToken);
 
         Scheduler.JobFactory = new JobFactory(serviceCollection.BuildServiceProvider());
         Scheduler.ListenerManager.AddJobListener(new BaringsJobListener());
 
-        await SynchroniseJobs();
-        await SynchroniseTriggers();
-        await SynchroniseOneOffTriggers();
+        await SynchroniseJobs(cancellationToken);
+        await SynchroniseTriggers(cancellationToken);
+        await SynchroniseOneOffTriggers(cancellationToken);
 
-        await Scheduler.Start();
+        await Scheduler.Start(cancellationToken);
     }
 
-    internal static void AddScheduledJob<T>(string groupName, string jobName, string jobDescription) where T : class, IJob
+    internal static void AddScheduledJob<T>(
+        string groupName,
+        string jobName,
+        string jobDescription) where T : class, IJob
     {
         try
         {
@@ -91,12 +94,12 @@ internal sealed class SynchroniserService
         }
     }
 
-    internal static async Task SynchroniseJobs()
+    internal static async Task SynchroniseJobs(CancellationToken cancellationToken = default)
     {
         try
         {
-            await DeleteOldJobs();
-            await InsertNewJobs();
+            await DeleteOldJobs(cancellationToken);
+            await InsertNewJobs(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -105,11 +108,11 @@ internal sealed class SynchroniserService
         }
     }
 
-    internal static async Task SynchroniseTriggers()
+    internal static async Task SynchroniseTriggers(CancellationToken cancellationToken = default)
     {
         try
         {
-            var quartzGroupNames = (await Scheduler.GetJobGroupNames()).Where(x => x.Equals(Constants.SynchroniserGroupName) == false);
+            var quartzGroupNames = (await Scheduler.GetJobGroupNames(cancellationToken)).Where(x => x.Equals(Constants.SynchroniserGroupName) == false);
             if (quartzGroupNames.Any())
             {
                 var triggerDefinitions = await schedulesBaringRepository!.GetAllTriggerDefinitionsAsync();
@@ -118,18 +121,18 @@ internal sealed class SynchroniserService
                     foreach (var triggerDefinition in triggerDefinitions.Where(x => x.JobGroupName == groupName))
                     {
                         var quartzTriggerKey = new TriggerKey(triggerDefinition.ScheduleName!, triggerDefinition.JobGroupName!);
-                        var quartzTrigger = await Scheduler.GetTrigger(quartzTriggerKey);
+                        var quartzTrigger = await Scheduler.GetTrigger(quartzTriggerKey, cancellationToken);
                         if (quartzTrigger == null)
                         {
-                            await AddTrigger(triggerDefinition);
+                            await AddTrigger(triggerDefinition, cancellationToken);
                         }
                         else if (((ICronTrigger)quartzTrigger)?.CronExpressionString?.Equals(triggerDefinition.CronSchedule) == false)
                         {
-                            await ChangeTriggerCronExpression(triggerDefinition, quartzTrigger);
+                            await ChangeTriggerCronExpression(triggerDefinition, quartzTrigger, cancellationToken);
                         }
                     }
 
-                    await DeleteOldTriggers(triggerDefinitions, groupName);
+                    await DeleteOldTriggers(triggerDefinitions, groupName, cancellationToken);
                 }
             }
         }
@@ -140,7 +143,7 @@ internal sealed class SynchroniserService
         }
     }
 
-    internal static async Task SynchroniseOneOffTriggers()
+    internal static async Task SynchroniseOneOffTriggers(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -148,7 +151,7 @@ internal sealed class SynchroniserService
             foreach (var oneOffTriggerDefinition in oneOffTriggerDefinitions)
             {
                 var jobKey = new JobKey(oneOffTriggerDefinition.JobName!, oneOffTriggerDefinition.JobGroupName!);
-                var job = await Scheduler.GetJobDetail(jobKey);
+                var job = await Scheduler.GetJobDetail(jobKey, cancellationToken);
                 if (job == null)
                 {
                     Log.Warning($"Job {jobKey.Name} in group {jobKey.Group} not found for one-off trigger");
@@ -163,7 +166,7 @@ internal sealed class SynchroniserService
                     .WithPriority(StandardJobPriority)
                     .StartNow()
                     .Build();
-                _ = await Scheduler.ScheduleJob(trigger);
+                _ = await Scheduler.ScheduleJob(trigger, cancellationToken);
                 Log.Information($"One-off trigger for job {jobKey.Name} in group {jobKey.Group} added");
             }
         }
@@ -174,17 +177,20 @@ internal sealed class SynchroniserService
         }
     }
 
-    private static async Task DeleteOldTriggers(IEnumerable<Models.TriggerDefinition> triggerDefinitions, string groupName)
+    private static async Task DeleteOldTriggers(
+        IEnumerable<Models.TriggerDefinition> triggerDefinitions,
+        string groupName,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            var oldTriggers = await Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.GroupEquals(groupName));
+            var oldTriggers = await Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.GroupEquals(groupName), cancellationToken);
             if (oldTriggers?.Count > 0)
             {
                 oldTriggers = [.. oldTriggers.Where(x => triggerDefinitions.Select(y => y.ScheduleName).Contains(x.Name) == false)];
                 foreach (var trigger in oldTriggers)
                 {
-                    _ = await Scheduler.UnscheduleJob(trigger);
+                    _ = await Scheduler.UnscheduleJob(trigger, cancellationToken);
                     Log.Information($"Trigger {trigger.Name} in group {trigger.Group} deleted");
                 }
             }
@@ -196,11 +202,13 @@ internal sealed class SynchroniserService
         }
     }
 
-    private static async Task AddTrigger(Models.TriggerDefinition triggerDefinition)
+    private static async Task AddTrigger(
+        Models.TriggerDefinition triggerDefinition,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            if (await Scheduler.CheckExists(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!)) == false)
+            if (await Scheduler.CheckExists(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!), cancellationToken) == false)
             {
                 Log.Warning($"Job {triggerDefinition.JobName} in group {triggerDefinition.JobGroupName} not found for trigger {triggerDefinition.ScheduleName}");
                 return;
@@ -215,7 +223,7 @@ internal sealed class SynchroniserService
                     triggerDefinition.CronSchedule!,
                     x => x.WithMisfireHandlingInstructionFireAndProceed())
                 .Build();
-            _ = await Scheduler.ScheduleJob(newTrigger);
+            _ = await Scheduler.ScheduleJob(newTrigger, cancellationToken);
             Log.Information($"Trigger {triggerDefinition.ScheduleName} for job {newTrigger.JobKey.Name}  added to group {triggerDefinition.JobGroupName}");
         }
         catch (Exception ex)
@@ -225,7 +233,10 @@ internal sealed class SynchroniserService
         }
     }
 
-    private static async Task ChangeTriggerCronExpression(Models.TriggerDefinition triggerDefinition, ITrigger quartzTrigger)
+    private static async Task ChangeTriggerCronExpression(
+        Models.TriggerDefinition triggerDefinition,
+        ITrigger quartzTrigger,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -238,7 +249,7 @@ internal sealed class SynchroniserService
                     triggerDefinition.CronSchedule!,
                     x => x.WithMisfireHandlingInstructionFireAndProceed())
                 .Build();
-            _ = await Scheduler.RescheduleJob(quartzTrigger.Key, newTrigger);
+            _ = await Scheduler.RescheduleJob(quartzTrigger.Key, newTrigger, cancellationToken);
             Log.Information($"Trigger {triggerDefinition.ScheduleName} for job {newTrigger.JobKey.Name}  in group {triggerDefinition.JobGroupName} updated to: {triggerDefinition.CronSchedule}");
         }
         catch (Exception ex)
@@ -248,16 +259,16 @@ internal sealed class SynchroniserService
         }
     }
 
-    private static async Task DeleteOldJobs()
+    private static async Task DeleteOldJobs(CancellationToken cancellationToken = default)
     {
         try
         {
-            var existingJobs = await Scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup());
+            var existingJobs = await Scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup(), cancellationToken);
             foreach (var existingJob in existingJobs.Where(x => x.Name != Constants.SynchroniserJobName && x.Group != Constants.SynchroniserGroupName))
             {
                 if (scheduledJobDetails.FirstOrDefault(x => x.Key.Group == existingJob.Group && x.Key.Name == existingJob.Name) == null)
                 {
-                    _ = await Scheduler.DeleteJob(existingJob);
+                    _ = await Scheduler.DeleteJob(existingJob, cancellationToken);
                     Log.Information($"Job {existingJob.Name} in group {existingJob.Group} deleted");
                 }
             }
@@ -269,13 +280,13 @@ internal sealed class SynchroniserService
         }
     }
 
-    private static async Task InsertNewJobs()
+    private static async Task InsertNewJobs(CancellationToken cancellationToken = default)
     {
         try
         {
             foreach (var scheduledJob in scheduledJobDetails)
             {
-                var existingJob = await Scheduler.GetJobDetail(scheduledJob.Key);
+                var existingJob = await Scheduler.GetJobDetail(scheduledJob.Key, cancellationToken);
                 if (existingJob == null)
                 {
                     var job = JobBuilder.Create(scheduledJob.JobType)
@@ -285,7 +296,7 @@ internal sealed class SynchroniserService
                         .PersistJobDataAfterExecution(true)
                         .DisallowConcurrentExecution(true)
                         .Build();
-                    await Scheduler.AddJob(job, true);
+                    await Scheduler.AddJob(job, true, cancellationToken);
                     Log.Information($"Job {scheduledJob.Key.Name} in group {scheduledJob.Key.Group} added");
                 }
             }
@@ -297,19 +308,19 @@ internal sealed class SynchroniserService
         }
     }
 
-    private static async Task CreateOrEditSynchroniserJob()
+    private static async Task CreateOrEditSynchroniserJob(CancellationToken cancellationToken = default)
     {
         var expectedRunPeriodMinutes = $"0 0/{Constants.SynchroniserRunPeriodMinutes} * * * ?";
         try
         {
-            var syncJob = await Scheduler.GetJobDetail(new JobKey(Constants.SynchroniserJobName, Constants.SynchroniserGroupName));
+            var syncJob = await Scheduler.GetJobDetail(new JobKey(Constants.SynchroniserJobName, Constants.SynchroniserGroupName), cancellationToken);
             if (syncJob == null)
             {
-                await AddSyncJobAndTrigger(expectedRunPeriodMinutes);
+                await AddSyncJobAndTrigger(expectedRunPeriodMinutes, cancellationToken);
             }
             else
             {
-                await EnsureSyncTriggerIsSetCorrectly(expectedRunPeriodMinutes);
+                await EnsureSyncTriggerIsSetCorrectly(expectedRunPeriodMinutes, cancellationToken);
             }
 
             _ = serviceCollection.AddScoped<SynchroniserJob>();
@@ -321,7 +332,9 @@ internal sealed class SynchroniserService
         }
     }
 
-    private static async Task AddSyncJobAndTrigger(string expectedRunPeriodMinutes)
+    private static async Task AddSyncJobAndTrigger(
+        string expectedRunPeriodMinutes,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -340,7 +353,7 @@ internal sealed class SynchroniserService
                 .StartNow()
                 .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
                 .Build();
-            _ = await Scheduler.ScheduleJob(job, trigger);
+            _ = await Scheduler.ScheduleJob(job, trigger, cancellationToken);
             Log.Information($"Job {Constants.SynchroniserJobName} in group {Constants.SynchroniserGroupName} added with trigger {Constants.SynchroniserTriggerName}");
         }
         catch (Exception ex)
@@ -350,11 +363,13 @@ internal sealed class SynchroniserService
         }
     }
 
-    private static async Task EnsureSyncTriggerIsSetCorrectly(string expectedRunPeriodMinutes)
+    private static async Task EnsureSyncTriggerIsSetCorrectly(
+        string expectedRunPeriodMinutes,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            var syncTrigger = await Scheduler.GetTrigger(new TriggerKey(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName));
+            var syncTrigger = await Scheduler.GetTrigger(new TriggerKey(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName), cancellationToken);
             if (syncTrigger != null)
             {
                 if (syncTrigger is ICronTrigger cronTrigger)
@@ -367,7 +382,7 @@ internal sealed class SynchroniserService
                             .StartNow()
                             .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
                             .Build();
-                        _ = await Scheduler.RescheduleJob(new TriggerKey(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName), trigger);
+                        _ = await Scheduler.RescheduleJob(new TriggerKey(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName), trigger, cancellationToken);
                         Log.Information($"Trigger {Constants.SynchroniserTriggerName} for job {trigger.JobKey.Name} in group {Constants.SynchroniserGroupName} updated to: {expectedRunPeriodMinutes}");
                     }
                 }
@@ -380,7 +395,7 @@ internal sealed class SynchroniserService
                             .StartNow()
                             .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
                             .Build();
-                _ = await Scheduler.ScheduleJob(trigger);
+                _ = await Scheduler.ScheduleJob(trigger, cancellationToken);
                 Log.Information($"Trigger {Constants.SynchroniserTriggerName} for job {trigger.JobKey.Name} in group {Constants.SynchroniserGroupName} added with cron schedule: {expectedRunPeriodMinutes}");
             }
         }

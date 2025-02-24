@@ -4,7 +4,7 @@ using BaringsScheduler.Services;
 using Quartz;
 using Serilog;
 
-public sealed class SynchroniserJob : IJob
+public sealed class SynchroniserJob(CancellationToken cancellationToken = default) : IJob
 {
     public async Task Execute(IJobExecutionContext context)
     {
@@ -12,9 +12,9 @@ public sealed class SynchroniserJob : IJob
         {
             context.MergedJobDataMap.Clear();
 
-            await SynchroniserService.SynchroniseJobs();
-            await SynchroniserService.SynchroniseTriggers();
-            await SynchroniserService.SynchroniseOneOffTriggers();
+            await SynchroniserService.SynchroniseJobs(cancellationToken);
+            await SynchroniserService.SynchroniseTriggers(cancellationToken);
+            await SynchroniserService.SynchroniseOneOffTriggers(cancellationToken);
 
             context.MergedJobDataMap.Add(Constants.SynchroniserJobName, Constants.SucceededMessage);
         }

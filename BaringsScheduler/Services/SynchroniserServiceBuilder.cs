@@ -65,9 +65,10 @@ public sealed class SynchroniserServiceBuilder
     /// <summary>
     /// Builds the <see cref="SynchroniserService"/> and sets it up.
     /// </summary>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the <see cref="SynchroniserService"/> is not set or <see cref="WithConfiguration(IConfiguration)"/> was not called.</exception>
-    public async Task Build()
+    public async Task Build(CancellationToken cancellationToken = default)
     {
         if (this.synchroniserService == null)
         {
@@ -75,6 +76,6 @@ public sealed class SynchroniserServiceBuilder
         }
 
         Log.Information("SynchroniserServiceBuilder built");
-        await SynchroniserService.Setup();
+        await SynchroniserService.Setup(cancellationToken);
     }
 }
