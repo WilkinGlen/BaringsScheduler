@@ -63,17 +63,33 @@ public sealed class SchedulesService(IConfiguration configuration) : ISchedulesS
     /// Gets all job details.
     /// </summary>
     /// <returns>A collection of job details.</returns>
-    public async Task<IEnumerable<IJobDetail?>> GetAllJobsAsync() =>
-        await this.Scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup())
-            .ContinueWith(task => task.Result.Select(jobKey => this.Scheduler.GetJobDetail(jobKey).Result));
+    public async Task<IEnumerable<IJobDetail?>> GetAllJobsAsync()
+    {
+        var jobKeys = await this.Scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup());
+        var jobDetails = new List<IJobDetail?>();
+        foreach (var jobKey in jobKeys)
+        {
+            jobDetails.Add(await this.Scheduler.GetJobDetail(jobKey));
+        }
+
+        return jobDetails;
+    }
 
     /// <summary>
     /// Gets all triggers.
     /// </summary>
     /// <returns>A collection of triggers.</returns>
-    public async Task<IEnumerable<ITrigger?>> GetAllTriggersAsync() =>
-        await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup())
-            .ContinueWith(task => task.Result.Select(triggerKey => this.Scheduler.GetTrigger(triggerKey).Result));
+    public async Task<IEnumerable<ITrigger?>> GetAllTriggersAsync()
+    {
+        var triggerKeys = await this.Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup());
+        var triggers = new List<ITrigger?>();
+        foreach (var triggerKey in triggerKeys)
+        {
+            triggers.Add(await this.Scheduler.GetTrigger(triggerKey));
+        }
+
+        return triggers;
+    }
 
     /// <summary>
     /// Deletes all failed triggers.
