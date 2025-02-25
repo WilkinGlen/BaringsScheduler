@@ -15,18 +15,6 @@ await SynchroniserServiceBuilder
     .WithScheduledJob<JobNumber3>(applicationName, "JobNumber3", "JobNumber3 description")
     .Build();
 
-var schedulesInterrogator = new SchedulesService(builder.Configuration);
-foreach (var job in await schedulesInterrogator.GetAllJobsAsync())
-{
-    Console.WriteLine(job?.Description);
-}
-
-var triggers = (await schedulesInterrogator.GetAllTriggersAsync()).ToList();
-foreach (var trigger in triggers)
-{
-    Console.WriteLine(trigger?.Description);
-}
-
 var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");

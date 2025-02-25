@@ -4,6 +4,9 @@ public static class Constants
 {
     public const string SucceededMessage = "Succeeded";
 
+    internal const int SyncJobPriority = 5;
+    internal const int StandardJobPriority = 10;
+
     internal const string SynchroniserGroupName = "SYNC_GROUP_NAME";
 
     internal const string SynchroniserJobName = "SYNC_JOB_NAME";

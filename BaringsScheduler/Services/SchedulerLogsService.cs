@@ -4,9 +4,9 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using Quartz;
 
-public static class SchedulerLogsService
+internal static class SchedulerLogsService
 {
-    public static async Task LogJobExecutionAsync(IJobExecutionContext jobExecutionContext, string? message, string quartzDatabaseConnectionString)
+    internal static async Task LogJobExecutionAsync(IJobExecutionContext jobExecutionContext, string? message, string quartzDatabaseConnectionString)
     {
         var sql = @"INSERT INTO [dbo].[QuartzLogs]([Succeeded], [RunCompleted], [GroupName], [JobName], [TriggerName], [Message], [ExceptionMessage])
                     VALUES(@succeeded, @runCompleted, @groupName, @jobName, @triggerName, @message, @exceptionMessage)";
@@ -24,7 +24,7 @@ public static class SchedulerLogsService
         _ = await connection.ExecuteAsync(sql, parameters);
     }
 
-    public static async Task LogJobFailureAsync(IJobExecutionContext jobExecutionContext, string? message, string? exceptionMessage, string quartzDatabaseConnectionString)
+    internal static async Task LogJobFailureAsync(IJobExecutionContext jobExecutionContext, string? message, string? exceptionMessage, string quartzDatabaseConnectionString)
     {
         var sql = @"INSERT INTO [dbo].[QuartzLogs]([Succeeded], [RunCompleted], [GroupName], [JobName], [TriggerName], [Message], [ExceptionMessage])
                     VALUES(@succeeded, @runCompleted, @groupName, @jobName, @triggerName, @message, @exceptionMessage)";

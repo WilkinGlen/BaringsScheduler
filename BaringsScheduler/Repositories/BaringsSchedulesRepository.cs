@@ -3,7 +3,10 @@
 using BaringsScheduler.Models;
 using Serilog;
 
-internal sealed class SchedulesBaringRepository(string connectionString)
+/***********************************************************************************************
+ * This repository will get trigger definitions from the database that is written to by the UI *
+ ***********************************************************************************************/
+internal sealed class BaringsSchedulesRepository(string connectionString)
 {
     internal async Task<IEnumerable<TriggerDefinition>> GetAllTriggerDefinitionsAsync()
     {

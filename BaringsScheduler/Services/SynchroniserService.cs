@@ -12,12 +12,9 @@ using Serilog;
 
 internal sealed class SynchroniserService
 {
-    private const int SyncJobPriority = 5;
-    private const int StandardJobPriority = 10;
-
-    private static readonly List<IJobDetail> scheduledJobDetails = [];
+   private static readonly List<IJobDetail> scheduledJobDetails = [];
     private static readonly ServiceCollection serviceCollection = [];
-    private static SchedulesBaringRepository? schedulesBaringRepository;
+    private static BaringsSchedulesRepository? schedulesBaringRepository;
 
     private static IScheduler? scheduler;
     private static IScheduler Scheduler
@@ -55,18 +52,16 @@ internal sealed class SynchroniserService
             throw new ArgumentException(message);
         }
 
-        schedulesBaringRepository = new SchedulesBaringRepository(Constants.SchedulerDatabaseConnectionString);
+        schedulesBaringRepository = new BaringsSchedulesRepository(Constants.SchedulerDatabaseConnectionString);
         Log.Information($"SchedulesBaringRepository setup with database: {Constants.SchedulerDatabaseConnectionString}");
 
         await CreateOrEditSynchroniserJob(cancellationToken);
-
         Scheduler.JobFactory = new JobFactory(serviceCollection.BuildServiceProvider());
         Scheduler.ListenerManager.AddJobListener(new BaringsJobListener());
 
         await SynchroniseJobs(cancellationToken);
         await SynchroniseTriggers(cancellationToken);
         await SynchroniseOneOffTriggers(cancellationToken);
-
         await Scheduler.Start(cancellationToken);
     }
 
@@ -163,7 +158,7 @@ internal sealed class SynchroniserService
                     .WithIdentity(triggerKey)
                     .WithDescription(oneOffTriggerDefinition.ScheduleDescription)
                     .ForJob(job)
-                    .WithPriority(StandardJobPriority)
+                    .WithPriority(Constants.StandardJobPriority)
                     .StartNow()
                     .Build();
                 _ = await Scheduler.ScheduleJob(trigger, cancellationToken);
@@ -218,7 +213,7 @@ internal sealed class SynchroniserService
                 .WithIdentity(triggerDefinition.ScheduleName!, triggerDefinition.JobGroupName!)
                 .WithDescription(triggerDefinition.ScheduleDescription)
                 .ForJob(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!))
-                .WithPriority(StandardJobPriority)
+                .WithPriority(Constants.StandardJobPriority)
                 .WithCronSchedule(
                     triggerDefinition.CronSchedule!,
                     x => x.WithMisfireHandlingInstructionFireAndProceed())
@@ -244,7 +239,7 @@ internal sealed class SynchroniserService
                 .WithIdentity(triggerDefinition.ScheduleName!, triggerDefinition.JobGroupName!)
                 .WithDescription(triggerDefinition.ScheduleDescription)
                 .ForJob(new JobKey(triggerDefinition.JobName!, triggerDefinition.JobGroupName!))
-                .WithPriority(StandardJobPriority)
+                .WithPriority(Constants.StandardJobPriority)
                 .WithCronSchedule(
                     triggerDefinition.CronSchedule!,
                     x => x.WithMisfireHandlingInstructionFireAndProceed())
@@ -349,7 +344,7 @@ internal sealed class SynchroniserService
             var trigger = TriggerBuilder.Create()
                 .WithIdentity(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName)
                 .WithDescription(Constants.SynchroniserTriggerDescription)
-                .WithPriority(SyncJobPriority)
+                .WithPriority(Constants.SyncJobPriority)
                 .StartNow()
                 .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
                 .Build();
