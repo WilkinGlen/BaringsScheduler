@@ -7,12 +7,11 @@ using System.Collections.Concurrent;
 
 internal class JobFactory(IServiceProvider serviceProvider) : IJobFactory
 {
-    protected readonly IServiceProvider? serviceProvider = serviceProvider;
     protected readonly ConcurrentDictionary<IJob, IServiceScope> scopes = new();
 
     public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
     {
-        var scope = this.serviceProvider?.CreateScope();
+        var scope = serviceProvider?.CreateScope();
         IJob? job;
         try
         {
