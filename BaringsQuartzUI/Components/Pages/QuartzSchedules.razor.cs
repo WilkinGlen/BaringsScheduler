@@ -12,6 +12,22 @@ public sealed partial class QuartzSchedules
     [Inject]
     private IJobsDatabaseRepository? JobsDatabaseRepository { get; set; }
 
-    protected override async Task OnInitializedAsync() =>
+    [Inject]
+    private ISchedulesDatabaseRepositoryService? SchedulesDatabaseRepositoryService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
         this.quartzJobDetails = [.. await this.JobsDatabaseRepository!.GetAllJobsAsync()];
+        var triggerDefinitions = await this.SchedulesDatabaseRepositoryService!.GetAllTriggerDefinitionsAsync();
+        if(this.quartzJobDetails.Count > 0)
+        {
+            foreach (var job in this.quartzJobDetails)
+            {
+                job.Triggers = triggerDefinitions.Where(x =>
+                    x.JobName == job.JobName &&
+                    x.JobGroupName == job.JobGroup &&
+                    x.JobClassName == job.JobClassName).ToList();
+            }
+        }
+    }
 }

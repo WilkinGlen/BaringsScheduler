@@ -11,6 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddMudServices();
 
 builder.Services.AddScoped<IJobsDatabaseRepository, JobsDatabaseRepository>();
+builder.Services.AddScoped<ISchedulesDatabaseRepositoryService, SchedulesDatabaseRepositoryService>();
 
 var app = builder.Build();
 
