@@ -2,10 +2,7 @@
 
 public sealed partial class MainLayout
 {
-    bool _drawerOpen = true;
+    private bool _drawerOpen = true;
 
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
+    private void DrawerToggle() => this._drawerOpen = !this._drawerOpen;
 }
