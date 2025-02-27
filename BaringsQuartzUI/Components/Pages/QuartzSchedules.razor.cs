@@ -30,4 +30,9 @@ public sealed partial class QuartzSchedules
             }
         }
     }
+
+    private async Task AddTrigger(QuartzJobDetail quartzJobDetail)
+    {
+
+    }
 }

@@ -12,4 +12,9 @@ internal static class SchedulesDatabaseRepositoryServiceSqlScripts
           	[JobGroupName],
           	[CronSchedule]
           FROM [dbo].[TriggerDefinitions]";
+
+    internal const string InsertTriggerDefinitionAsyncSql =
+        @"INSERT INTO [dbo].[TriggerDefinitions]([ScheduleName], [JobName], [JobDecription], [JobClassName], [JobGroupName], [CronSchedule])
+          VALUES(@scheduleName, @jobName, @jobDecription, @jobClassName, @jobGroupName, @cronSchedule)
+          SELECT @@IDENTITY AS Id";
 }

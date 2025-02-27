@@ -8,6 +8,8 @@ using Microsoft.Data.SqlClient;
 public interface ISchedulesDatabaseRepositoryService
 {
     Task<IEnumerable<TriggerDefinition>> GetAllTriggerDefinitionsAsync();
+
+    Task<TriggerDefinition> InsertTriggerDefinitionAsync(TriggerDefinition triggerDefinition);
 }
 
 public sealed class SchedulesDatabaseRepositoryService(IConfiguration configuration) : ISchedulesDatabaseRepositoryService
@@ -25,5 +27,20 @@ public sealed class SchedulesDatabaseRepositoryService(IConfiguration configurat
             Console.WriteLine(ex.Message);
             throw;
         }
+    }
+
+    public async Task<TriggerDefinition> InsertTriggerDefinitionAsync(TriggerDefinition triggerDefinition)
+    {
+        var sql = SchedulesDatabaseRepositoryServiceSqlScripts.InsertTriggerDefinitionAsyncSql;
+        var parameters = new DynamicParameters();
+        parameters.Add("@scheduleName", triggerDefinition.ScheduleName);
+        parameters.Add("@jobName", triggerDefinition.JobName);
+        parameters.Add("@jobDecription", triggerDefinition.JobDescription);
+        parameters.Add("@jobClassName", triggerDefinition.JobClassName);
+        parameters.Add("@jobGroupName", triggerDefinition.JobGroupName);
+        parameters.Add("@cronSchedule", triggerDefinition.CronSchedule);
+        var connection = new SqlConnection(configuration.GetConnectionString("SchedulerDatabaseConnectionString"));
+        triggerDefinition.Id = await connection.QuerySingleAsync<int>(sql, parameters);
+        return triggerDefinition;
     }
 }

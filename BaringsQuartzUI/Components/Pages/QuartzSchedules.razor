@@ -5,7 +5,7 @@
 <div class="container" style="margin: 5rem;">
     <div class="row">
         <div class="col">
-            <MudDataGrid Items="@this.quartzJobDetails">
+            <MudDataGrid Items="@this.quartzJobDetails" Dense="true">
                 <Columns>
                     <HierarchyColumn T="@QuartzJobDetail" />
                     <PropertyColumn Property="x => x.JobName" Title="Name" />
@@ -14,12 +14,20 @@
                     <PropertyColumn Property="x => x.JobClassName" Title="Job Class" />
                 </Columns>
                 <ChildRowContent>
-                    <MudDataGrid Items="@context.Item.Triggers">
+                    <MudDataGrid Items="@context.Item.Triggers" Dense="true">
                         <Columns>
-                            <PropertyColumn Property="x => x.ScheduleName" Title="Name" />
-                            <PropertyColumn Property="x => x.JobName" Title="Job Name" />
-                            <PropertyColumn Property="x => x.JobDescription" Title="Job Description" />
+                            <PropertyColumn Property="x => x.ScheduleName" Title="Schedule Name" />
                             <PropertyColumn Property="x => x.CronSchedule" Title="Cron Schedule" />
+                            <TemplateColumn>
+                                <HeaderTemplate Context="TriggerDefinition">
+                                    <MudButton
+                                        Variant="Variant.Outlined"
+                                        Color="Color.Primary"
+                                        EndIcon="@Icons.Material.Filled.Add"
+                                        Size="Size.Small"
+                                    OnClick="@(() => this.AddTrigger(context.Item))">Add</MudButton>
+                                </HeaderTemplate>
+                            </TemplateColumn>
                         </Columns>
                     </MudDataGrid>
                 </ChildRowContent>
