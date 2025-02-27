@@ -17,22 +17,36 @@ public sealed partial class QuartzSchedules
 
     protected override async Task OnInitializedAsync()
     {
-        this.quartzJobDetails = [.. await this.JobsDatabaseRepository!.GetAllJobsAsync()];
-        var triggerDefinitions = await this.SchedulesDatabaseRepositoryService!.GetAllTriggerDefinitionsAsync();
-        if(this.quartzJobDetails.Count > 0)
+        var jobsTask = this.JobsDatabaseRepository!.GetAllJobsAsync();
+        var triggersTask = this.SchedulesDatabaseRepositoryService!.GetAllTriggerDefinitionsAsync();
+        var tasks = new List<Task> { jobsTask, triggersTask };
+        await Task.WhenAll(tasks);
+
+        this.quartzJobDetails = [.. jobsTask.Result];
+        var triggerDefinitions = triggersTask.Result;
+        if (this.quartzJobDetails.Count > 0 && triggerDefinitions.Any())
         {
             foreach (var job in this.quartzJobDetails)
             {
-                job.Triggers = triggerDefinitions.Where(x =>
+                job.Triggers = [.. triggerDefinitions.Where(x =>
                     x.JobName == job.JobName &&
                     x.JobGroupName == job.JobGroup &&
-                    x.JobClassName == job.JobClassName).ToList();
+                    x.JobClassName == job.JobClassName)];
             }
         }
     }
 
     private async Task AddTrigger(QuartzJobDetail quartzJobDetail)
     {
-
+        var triggerDefinition = new TriggerDefinition
+        {
+            ScheduleName = "Every3Minutes",
+            JobName = quartzJobDetail.JobName,
+            JobGroupName = quartzJobDetail.JobGroup,
+            JobClassName = quartzJobDetail.JobClassName,
+            CronSchedule = "0 0/3 * * * ?"
+        };
+        triggerDefinition.Id = (await this.SchedulesDatabaseRepositoryService!.InsertTriggerDefinitionAsync(triggerDefinition)).Id;
+        quartzJobDetail.Triggers.Add(triggerDefinition);
     }
 }

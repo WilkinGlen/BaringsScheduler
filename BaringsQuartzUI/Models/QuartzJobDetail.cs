@@ -10,5 +10,5 @@ public sealed class QuartzJobDetail
 
     public string? JobClassName { get; set; }
 
-    public List<TriggerDefinition>? Triggers { get; set; } = [];
+    public List<TriggerDefinition> Triggers { get; set; } = [];
 }
