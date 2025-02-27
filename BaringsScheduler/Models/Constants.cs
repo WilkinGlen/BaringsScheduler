@@ -1,4 +1,4 @@
-﻿namespace BaringsScheduler.Services;
+﻿namespace BaringsScheduler.Models;
 
 public static class Constants
 {

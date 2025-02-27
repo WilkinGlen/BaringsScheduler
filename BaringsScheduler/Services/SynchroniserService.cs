@@ -2,6 +2,7 @@
 
 using BaringsScheduler.Jobs;
 using BaringsScheduler.Listeners;
+using BaringsScheduler.Models;
 using BaringsScheduler.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,7 @@ using Serilog;
 
 internal sealed class SynchroniserService
 {
-   private static readonly List<IJobDetail> scheduledJobDetails = [];
+    private static readonly List<IJobDetail> scheduledJobDetails = [];
     private static readonly ServiceCollection serviceCollection = [];
     private static BaringsSchedulesRepository? schedulesBaringRepository;
 

@@ -1,5 +1,6 @@
 ﻿namespace BaringsScheduler.Jobs;
 
+using BaringsScheduler.Models;
 using BaringsScheduler.Services;
 using Quartz;
 using Serilog;
