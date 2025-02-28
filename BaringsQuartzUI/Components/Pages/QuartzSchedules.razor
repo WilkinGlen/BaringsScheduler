@@ -29,6 +29,11 @@
                                         OnClick="@(() => this.AddTrigger(context.Item))">Add New</MudButton>
                                 </HeaderTemplate>
                                 <CellTemplate Context="TriggerDefinition">
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Default"
+                                               EndIcon="@Icons.Material.Filled.Delete"
+                                               Size="Size.Small"
+                                               OnClick="@(() => this.AddOneOffTrigger(TriggerDefinition.Item))">Run</MudButton>
                                     <MudButton
                                         Variant="Variant.Outlined"
                                         Color="Color.Secondary"

@@ -17,6 +17,10 @@ public static class Constants
 
     internal const string SynchroniserTriggerDescription = "This is the trigger that schedules the job to synchronise Quartz and the client";
 
+    internal const string OneOffTriggerName = "OneOffTrigger";
+
+    internal const string OneOffTriggerDescription = "OneOffTriggerDescription";
+
     internal static string? QuartzDatabaseConnectionString { get; set; }
 
     internal static string? SchedulerDatabaseConnectionString { get; set; }

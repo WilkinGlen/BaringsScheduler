@@ -12,6 +12,8 @@ public interface ISchedulesDatabaseRepositoryService
     Task<TriggerDefinition> InsertTriggerDefinitionAsync(TriggerDefinition triggerDefinition);
 
     Task DeleteTriggerDefinitionAsync(TriggerDefinition triggerDefinition);
+
+    Task InsertOneOffTriggerDefinitionAsync(TriggerDefinition triggerDefinition);
 }
 
 public sealed class SchedulesDatabaseRepositoryService(IConfiguration configuration) : ISchedulesDatabaseRepositoryService
@@ -37,7 +39,7 @@ public sealed class SchedulesDatabaseRepositoryService(IConfiguration configurat
         var parameters = new DynamicParameters();
         parameters.Add("@scheduleName", triggerDefinition.ScheduleName);
         parameters.Add("@jobName", triggerDefinition.JobName);
-        parameters.Add("@jobDecription", triggerDefinition.JobDescription);
+        parameters.Add("@jobDescription", triggerDefinition.JobDescription);
         parameters.Add("@jobClassName", triggerDefinition.JobClassName);
         parameters.Add("@jobGroupName", triggerDefinition.JobGroupName);
         parameters.Add("@cronSchedule", triggerDefinition.CronSchedule);
@@ -51,5 +53,18 @@ public sealed class SchedulesDatabaseRepositoryService(IConfiguration configurat
         var sql = SchedulesDatabaseRepositoryServiceSqlScripts.DeleteTriggerDefinitionAsyncSql;
         var connection = new SqlConnection(configuration.GetConnectionString("SchedulerDatabaseConnectionString"));
         _ = await connection.ExecuteAsync(sql, new { triggerDefinition.Id });
+    }
+
+    public async Task InsertOneOffTriggerDefinitionAsync(TriggerDefinition triggerDefinition)
+    {
+        var sql = SchedulesDatabaseRepositoryServiceSqlScripts.InsertOneOffTriggerDefinitionAsyncSql;
+        var parameters = new DynamicParameters();
+        parameters.Add("@scheduleName", "OneOffTrigger");
+        parameters.Add("@jobName", triggerDefinition.JobName);
+        parameters.Add("@jobDescription", triggerDefinition.JobDescription);
+        parameters.Add("@jobClassName", triggerDefinition.JobClassName);
+        parameters.Add("@jobGroupName", triggerDefinition.JobGroupName);
+        var connection = new SqlConnection(configuration.GetConnectionString("SchedulerDatabaseConnectionString"));
+        _ = await connection.ExecuteAsync(sql, parameters);
     }
 }

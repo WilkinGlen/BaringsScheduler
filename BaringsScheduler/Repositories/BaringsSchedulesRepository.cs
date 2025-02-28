@@ -27,19 +27,9 @@ internal sealed class BaringsSchedulesRepository(string connectionString)
     {
         try
         {
-            return await Task.FromResult(new List<TriggerDefinition>()
-            {
-                new ()
-                {
-                    Id = 1,
-                    ScheduleName = "OneOff",
-                    ScheduleDescription = "OneOff",
-                    JobName = "JobNumber3",
-                    JobDescription = "JobNumber3 description",
-                    JobClassName = "BaringsJobScheduler.Jobs.JobNumber3, BaringsJobScheduler",
-                    JobGroupName = "BaringsJobScheduler"
-                }
-            });
+            var sql = BaringsSchedulesRepositorySqlScripts.GetAllOneOffTriggerDefinitionsAsyncSql;
+            var connection = new SqlConnection(connectionString);
+            return await connection.QueryAsync<TriggerDefinition>(sql);
         }
         catch (Exception ex)
         {

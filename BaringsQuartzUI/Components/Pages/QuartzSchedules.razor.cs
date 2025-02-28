@@ -75,4 +75,22 @@ public sealed partial class QuartzSchedules
         var job = this.quartzJobDetails?.FirstOrDefault(x => x.JobName == triggerDefinition.JobName);
         _ = (job?.Triggers.Remove(triggerDefinition));
     }
+
+    private async Task AddOneOffTrigger(TriggerDefinition triggerDefinition)
+    {
+        var quartzJobDetail = this.quartzJobDetails?.FirstOrDefault(x =>
+            x.JobName == triggerDefinition.JobName &&
+            x.JobGroup == triggerDefinition.JobGroupName);
+        if (quartzJobDetail != null)
+        {
+            var oneOffTrigger = new TriggerDefinition
+            {
+                JobName = quartzJobDetail.JobName,
+                JobDescription = quartzJobDetail.Description,
+                JobClassName = quartzJobDetail.JobClassName,
+                JobGroupName = quartzJobDetail.JobGroup
+            };
+            await this.SchedulesDatabaseRepositoryService!.InsertOneOffTriggerDefinitionAsync(oneOffTrigger);
+        }
+    }
 }

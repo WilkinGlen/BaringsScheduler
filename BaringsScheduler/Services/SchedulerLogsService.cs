@@ -1,5 +1,6 @@
 ﻿namespace BaringsScheduler.Services;
 
+using BaringsScheduler.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Quartz;
@@ -21,7 +22,13 @@ internal static class SchedulerLogsService
             message,
             exceptionMessage = (string?)null
         };
+
         _ = await connection.ExecuteAsync(sql, parameters);
+        
+        if (jobExecutionContext.Trigger.Key.Name == Constants.OneOffTriggerName)
+        {
+            await LogOneOffAsCompletedAsync(jobExecutionContext);
+        }
     }
 
     internal static async Task LogJobFailureAsync(IJobExecutionContext jobExecutionContext, string? message, string? exceptionMessage, string quartzDatabaseConnectionString)
@@ -38,6 +45,30 @@ internal static class SchedulerLogsService
             triggerName = jobExecutionContext.Trigger.Key.Name,
             message,
             exceptionMessage
+        };
+
+        _ = await connection.ExecuteAsync(sql, parameters);
+        
+        if (jobExecutionContext.Trigger.Key.Name == Constants.OneOffTriggerName && 
+            jobExecutionContext.Trigger.Description == Constants.OneOffTriggerDescription)
+        {
+            await LogOneOffAsCompletedAsync(jobExecutionContext);
+        }
+    }
+
+    private static async Task LogOneOffAsCompletedAsync(IJobExecutionContext jobExecutionContext)
+    {
+        var sql = @"UPDATE [dbo].[OneOffTriggerDefinitions]
+                    SET JobCompleted = GETUTCDATE()
+                    WHERE ScheduleName = @scheduleName 
+                    AND JobName = @jobName
+                    AND JobGroupName = @jobGroupName";
+        var connection = new SqlConnection(Constants.SchedulerDatabaseConnectionString);
+        var parameters = new
+        {
+            scheduleName = jobExecutionContext.Trigger.Key.Name,
+            jobName = jobExecutionContext.JobDetail.Key.Name,
+            jobGroupName = jobExecutionContext.JobDetail.Key.Group
         };
         _ = await connection.ExecuteAsync(sql, parameters);
     }
