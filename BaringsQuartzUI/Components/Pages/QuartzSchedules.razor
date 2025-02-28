@@ -2,24 +2,25 @@
 
 @using BaringsQuartzUI.Models
 
-<div class="container" style="margin: 5rem;">
+<div class="container" style="margin-left: 5rem; margin-right: 5rem; margin-top: 3rem;">
     <div class="row">
         <div class="col">
-            <MudDataGrid Items="@this.quartzJobDetails" Dense="true">
+            <MudDataGrid Items="@this.quartzJobDetails" Dense="true" HeaderClass="jobHeaderCell">
                 <Columns>
                     <HierarchyColumn T="@QuartzJobDetail" />
-                    <PropertyColumn Property="x => x.JobName" Title="Name" />
-                    <PropertyColumn Property="x => x.JobGroup" Title="Group" />
-                    <PropertyColumn Property="x => x.Description" Title="Description" />
-                    <PropertyColumn Property="x => x.JobClassName" Title="Job Class" />
+                    <PropertyColumn CellClass="jobDetailCell" Property="x => x.JobName" Title="Job Name" />
+                    <PropertyColumn CellClass="jobDetailCell" Property="x => x.JobGroup" Title="Job Group" />
+                    <PropertyColumn CellClass="jobDetailCell" Property="x => x.Description" Title="Job Description" />
+                    <PropertyColumn CellClass="jobDetailCell" Property="x => x.JobClassName" Title="Job Class" />
                 </Columns>
                 <ChildRowContent>
-                    <MudDataGrid Items="@context.Item.Triggers" Dense="true">
+                    <MudDataGrid Items="@context.Item.Triggers" Dense="true" HeaderClass="triggerHeaderClass">
                         <Columns>
                             <PropertyColumn Property="x => x.ScheduleName" Title="Schedule Name" />
                             <PropertyColumn Property="x => x.CronSchedule" Title="Cron Schedule" />
                             <TemplateColumn>
                                 <HeaderTemplate Context="JobDetail">
+                                    <MudSpacer />
                                     <MudButton
                                         Variant="Variant.Outlined"
                                         Color="Color.Primary"
@@ -43,3 +44,17 @@
         </div>
     </div>
 </div>
+
+<style>
+    .jobHeaderCell {
+        font-weight: 900;
+    }
+
+    .jobDetailCell {
+        font-weight: 700;
+    }
+
+    .triggerHeaderClass {
+        background-color: lightgray;
+    }
+</style>
