@@ -21,10 +21,7 @@ public sealed partial class QuartzSchedules
     [Inject]
     private IDialogService? DialogService { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await this.PopulateJobDetails();
-    }
+    protected override async Task OnInitializedAsync() => await this.PopulateJobDetails();
 
     private async Task PopulateJobDetails()
     {
@@ -34,12 +31,12 @@ public sealed partial class QuartzSchedules
         await Task.WhenAll(tasks);
 
         this.quartzJobDetails = [.. jobsTask.Result];
-        triggerDefinitions = triggersTask.Result;
-        if (this.quartzJobDetails.Count > 0 && triggerDefinitions.Any())
+        this.triggerDefinitions = triggersTask.Result;
+        if (this.quartzJobDetails.Count > 0 && this.triggerDefinitions.Any())
         {
             foreach (var job in this.quartzJobDetails)
             {
-                job.Triggers = [.. triggerDefinitions.Where(x =>
+                job.Triggers = [.. this.triggerDefinitions.Where(x =>
                     x.JobName == job.JobName &&
                     x.JobGroupName == job.JobGroup &&
                     x.JobClassName == job.JobClassName)];

@@ -18,7 +18,7 @@ public sealed partial class PeriodExpressionBuilder
         get => this.selectedHour;
         set
         {
-            if(value > 0)
+            if (value > 0)
             {
                 this.selectedMinute = 0;
             }

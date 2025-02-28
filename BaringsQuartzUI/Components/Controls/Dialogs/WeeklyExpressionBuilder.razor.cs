@@ -27,7 +27,7 @@ public sealed partial class WeeklyExpressionBuilder
 
     private void RaiseOnDayTimeChanged()
     {
-        if(this.selectedDay.HasValue && this.selectedTime.HasValue)
+        if (this.selectedDay.HasValue && this.selectedTime.HasValue)
         {
             _ = this.OnDayTimeChanged.InvokeAsync((this.selectedDay, this.selectedTime));
         }

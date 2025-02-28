@@ -14,7 +14,7 @@ public sealed partial class MultipleDaysExpressionBuilder
     private void MonChangedHandler(bool value)
     {
         this.days.Mon = value;
-        if(value)
+        if (value)
         {
             this.daysOftheWeek.Add(DayOfWeek.Monday);
         }
@@ -124,7 +124,7 @@ public sealed partial class MultipleDaysExpressionBuilder
 
     private void RaiseOnDayTimeChanged()
     {
-        if(this.daysOftheWeek?.Count > 0 && this.selectedTime.HasValue)
+        if (this.daysOftheWeek?.Count > 0 && this.selectedTime.HasValue)
         {
             _ = this.OnDaysTimeChanged.InvokeAsync((this.selectedTime.Value, this.daysOftheWeek.ToArray()));
         }

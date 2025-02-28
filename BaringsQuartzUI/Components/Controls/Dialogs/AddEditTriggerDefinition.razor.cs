@@ -34,7 +34,7 @@ public sealed partial class AddEditTriggerDefinition
 
     private void SubmitClickedHandler()
     {
-        if(!string.IsNullOrWhiteSpace(this.cronExpression) && !string.IsNullOrWhiteSpace(this.scheduleName))
+        if (!string.IsNullOrWhiteSpace(this.cronExpression) && !string.IsNullOrWhiteSpace(this.scheduleName))
         {
             this.MudDialog!.Close(DialogResult.Ok((this.scheduleName, this.cronExpression)));
         }

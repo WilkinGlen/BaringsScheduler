@@ -9,7 +9,7 @@ public sealed partial class MonthlyExpressionBuilder
     private TimeSpan? selectedTime;
 
     [Parameter]
-    public EventCallback<(int Day, TimeSpan Time)>OnDayTimeChanged { get; set; }
+    public EventCallback<(int Day, TimeSpan Time)> OnDayTimeChanged { get; set; }
 
     private void TimeChangedHandler(TimeSpan? time)
     {

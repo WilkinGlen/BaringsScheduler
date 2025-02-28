@@ -1,46 +1,24 @@
 ﻿namespace BaringsScheduler.Repositories;
 
 using BaringsScheduler.Models;
+using BaringsScheduler.Repositories.SqlScripts;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Serilog;
 
-/***********************************************************************************************
- * This repository will get trigger definitions from the database that is written to by the UI *
- ***********************************************************************************************/
 internal sealed class BaringsSchedulesRepository(string connectionString)
 {
     internal async Task<IEnumerable<TriggerDefinition>> GetAllTriggerDefinitionsAsync()
     {
         try
         {
-            return await Task.FromResult(new List<TriggerDefinition>()
-            {
-                new ()
-                {
-                    Id = 1,
-                    ScheduleName = "Every2Minute",
-                    ScheduleDescription = "Every 2 minutes trigger",
-                    JobName = "JobNumber1",
-                    JobDescription = "JobNumber1 description",
-                    JobClassName = "BaringsJobScheduler.Jobs.JobNumber1, BaringsJobScheduler",
-                    JobGroupName = "BaringsJobScheduler",
-                    CronSchedule = "0 0/2 * * * ?"
-                },
-                new ()
-                {
-                    Id = 2,
-                    ScheduleName = "Every3Minutes",
-                    ScheduleDescription = "Every 3 minutes trigger",
-                    JobName = "JobNumber2",
-                    JobDescription = "JobNumber2 description",
-                    JobClassName = "BaringsJobScheduler.Jobs.JobNumber2, BaringsJobScheduler",
-                    JobGroupName = "BaringsJobScheduler",
-                    CronSchedule = "0 0/3 * * * ?"
-                }
-            });
+            var sql = BaringsSchedulesRepositorySqlScripts.GetAllTriggerDefinitionsAsyncSql;
+            var connection = new SqlConnection(connectionString);
+            return await connection.QueryAsync<TriggerDefinition>(sql);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error in SchedulesBaringRepository.GetAllTriggerDefinitionsAsync");
+            Console.WriteLine(ex.Message);
             throw;
         }
     }
