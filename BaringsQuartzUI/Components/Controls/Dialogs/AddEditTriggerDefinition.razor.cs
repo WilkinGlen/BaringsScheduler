@@ -14,6 +14,9 @@ public sealed partial class AddEditTriggerDefinition
     private void WeeklyExpressionBuilderDayTimeChangedHandler((DayOfWeek? DayOfWeek, TimeSpan? TimeSpan) values) =>
         this.cronExpression = CronExpressionBuilderService.BuildCronExpression(values.DayOfWeek!.Value, values.TimeSpan!.Value);
 
+    private void MultipleDaysExpressionBuilderDaysTimeChangedHandler((TimeSpan TimeSpan, DayOfWeek[] DaysOfTheWeek) values) =>
+        this.cronExpression = CronExpressionBuilderService.BuildCronExpression(values.TimeSpan, values.DaysOfTheWeek);
+
     private enum ScheduleTypes
     {
         Select,
