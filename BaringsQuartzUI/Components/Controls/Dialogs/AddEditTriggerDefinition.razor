@@ -1,5 +1,46 @@
-﻿<h3>AddEditTriggerDefinition</h3>
-
-@code {
-
-}
+﻿<MudDialog>
+    <DialogContent>
+        <MudStack Row>
+            <MudText>Schedule name</MudText>
+            <MudTextField T="string" />
+        </MudStack>
+        <MudStack Row>
+            <MudText>Cron expression</MudText>
+            <MudTextField ReadOnly="true" @bind-Value="@this.cronExpression" />
+        </MudStack>
+        <MudStack Row>
+            <MudText>Schedule type</MudText>
+            <MudSelect T="ScheduleTypes" @bind-Value="@this.selectedScheduleType">
+                @foreach (var type in this.scheduleTypes)
+                {
+                    <MudSelectItem Value="@type" />
+                }
+            </MudSelect>
+        </MudStack>
+        @switch (this.selectedScheduleType)
+        {
+            case ScheduleTypes.Daily:
+                {
+                    <DailyExpressionBuilder OnTimeChanged="@this.DailyExpressionBuilderTimeChangedHandler" />
+                    break;
+                }
+                case ScheduleTypes.Weekly:
+                {
+                    <WeeklyExpressionBuilder OnDayTimeChanged="@this.WeeklyExpressionBuilderDayTimeChangedHandler" />
+                    break;
+                }
+                case ScheduleTypes.MultipleDays:
+                {
+                    break;
+                }
+            case ScheduleTypes.Monthly:
+                {
+                    break;
+                }
+            case ScheduleTypes.Periodically:
+                {
+                    break;
+                }
+        }
+    </DialogContent>
+</MudDialog>
