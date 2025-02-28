@@ -1,54 +1,62 @@
 ﻿<MudDialog>
     <DialogContent>
-        <MudStack Row>
-            <MudText>Schedule name</MudText>
-            <MudTextField T="string" @bind-Value="@this.scheduleName" />
-        </MudStack>
-        <MudStack Row>
-            <MudText>Cron expression</MudText>
-            <MudTextField ReadOnly="true" @bind-Value="@this.cronExpression" />
-        </MudStack>
-        <MudStack Row>
-            <MudText>Schedule type</MudText>
-            <MudSelect T="ScheduleTypes" @bind-Value="@this.selectedScheduleType">
-                @foreach (var type in this.scheduleTypes)
-                {
-                    <MudSelectItem Value="@type" />
-                }
-            </MudSelect>
-        </MudStack>
-        @switch (this.selectedScheduleType)
-        {
-            case ScheduleTypes.Daily:
-                {
-                    <DailyExpressionBuilder OnTimeChanged="@this.DailyExpressionBuilderTimeChangedHandler" />
-                    break;
-                }
+        <MudStack>
+            <MudStack Row>
+                <MudText Class="component-label">Schedule name:</MudText>
+                <MudTextField T="string" @bind-Value="@this.scheduleName" />
+            </MudStack>
+            <MudStack Row>
+                <MudText Class="component-label">Cron expression:</MudText>
+                <MudTextField ReadOnly="true" @bind-Value="@this.cronExpression" />
+            </MudStack>
+            <MudStack Row>
+                <MudText Class="component-label">Schedule type:</MudText>
+                <MudSelect T="ScheduleTypes" @bind-Value="@this.selectedScheduleType">
+                    @foreach (var type in this.scheduleTypes)
+                    {
+                        <MudSelectItem Value="@type" />
+                    }
+                </MudSelect>
+            </MudStack>
+            @switch (this.selectedScheduleType)
+            {
+                case ScheduleTypes.Daily:
+                    {
+                        <DailyExpressionBuilder OnTimeChanged="@this.DailyExpressionBuilderTimeChangedHandler" />
+                        break;
+                    }
                 case ScheduleTypes.Weekly:
-                {
-                    <WeeklyExpressionBuilder OnDayTimeChanged="@this.WeeklyExpressionBuilderDayTimeChangedHandler" />
-                    break;
-                }
+                    {
+                        <WeeklyExpressionBuilder OnDayTimeChanged="@this.WeeklyExpressionBuilderDayTimeChangedHandler" />
+                        break;
+                    }
                 case ScheduleTypes.MultipleDays:
-                {
-                    <MultipleDaysExpressionBuilder OnDaysTimeChanged="@this.MultipleDaysExpressionBuilderDaysTimeChangedHandler" />
-                    break;
-                }
-            case ScheduleTypes.Monthly:
-                {
-                    <MonthlyExpressionBuilder OnDayTimeChanged="@this.MonthlyExpressionBuilderDayTimeChangedHandler" />
-                    break;
-                }
-            case ScheduleTypes.Periodically:
-                {
-                    <PeriodExpressionBuilder OnHoursMinutesChanged="@this.PeriodExpressionBuilderHoursMinutesChangedHandler" />
-                    break;
-                }
-        }
-        <MudStack Row>
-            <MudSpacer />
-            <MudButton Variant="Variant.Outlined" OnClick="@this.CancelClickedHandler">Cancel</MudButton>
-            <MudButton Variant="Variant.Outlined" OnClick="@this.SubmitClickedHandler">Submit</MudButton>
+                    {
+                        <MultipleDaysExpressionBuilder OnDaysTimeChanged="@this.MultipleDaysExpressionBuilderDaysTimeChangedHandler" />
+                        break;
+                    }
+                case ScheduleTypes.Monthly:
+                    {
+                        <MonthlyExpressionBuilder OnDayTimeChanged="@this.MonthlyExpressionBuilderDayTimeChangedHandler" />
+                        break;
+                    }
+                case ScheduleTypes.Periodically:
+                    {
+                        <PeriodExpressionBuilder OnHoursMinutesChanged="@this.PeriodExpressionBuilderHoursMinutesChangedHandler" />
+                        break;
+                    }
+            }
         </MudStack>
     </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@this.CancelClickedHandler">Cancel</MudButton>
+        <MudButton Variant="Variant.Outlined" Size="Size.Small" Color="Color.Primary" OnClick="@this.SubmitClickedHandler">Submit</MudButton>
+    </DialogActions>
 </MudDialog>
+
+<style>
+    .component-label {
+        margin-top: 0.25rem !important;
+        min-width: 8rem;
+    }
+</style>

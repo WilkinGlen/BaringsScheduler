@@ -49,7 +49,8 @@ public sealed partial class QuartzSchedules
 
     private async Task AddTrigger(QuartzJobDetail quartzJobDetail)
     {
-        var dialog = await this.DialogService!.ShowAsync<AddEditTriggerDefinition>("Add Trigger");
+        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter };
+        var dialog = await this.DialogService!.ShowAsync<AddEditTriggerDefinition>("Add Trigger", options: dialogOptions);
         var result = await dialog.Result;
         if (result?.Data != null)
         {
@@ -69,5 +70,12 @@ public sealed partial class QuartzSchedules
                 quartzJobDetail.Triggers.Add(triggerDefinition);
             }
         }
+    }
+
+    private async Task DeleteTrigger(TriggerDefinition triggerDefinition)
+    {
+        await this.SchedulesDatabaseRepositoryService!.DeleteTriggerDefinitionAsync(triggerDefinition);
+        var job = this.quartzJobDetails?.FirstOrDefault(x => x.JobName == triggerDefinition.JobName);
+        _ = (job?.Triggers.Remove(triggerDefinition));
     }
 }

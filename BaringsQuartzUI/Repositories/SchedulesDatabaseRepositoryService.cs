@@ -10,6 +10,8 @@ public interface ISchedulesDatabaseRepositoryService
     Task<IEnumerable<TriggerDefinition>> GetAllTriggerDefinitionsAsync();
 
     Task<TriggerDefinition> InsertTriggerDefinitionAsync(TriggerDefinition triggerDefinition);
+
+    Task DeleteTriggerDefinitionAsync(TriggerDefinition triggerDefinition);
 }
 
 public sealed class SchedulesDatabaseRepositoryService(IConfiguration configuration) : ISchedulesDatabaseRepositoryService
@@ -42,5 +44,12 @@ public sealed class SchedulesDatabaseRepositoryService(IConfiguration configurat
         var connection = new SqlConnection(configuration.GetConnectionString("SchedulerDatabaseConnectionString"));
         triggerDefinition.Id = await connection.QuerySingleAsync<int>(sql, parameters);
         return triggerDefinition;
+    }
+
+    public async Task DeleteTriggerDefinitionAsync(TriggerDefinition triggerDefinition)
+    {
+        var sql = SchedulesDatabaseRepositoryServiceSqlScripts.DeleteTriggerDefinitionAsyncSql;
+        var connection = new SqlConnection(configuration.GetConnectionString("SchedulerDatabaseConnectionString"));
+        _ = await connection.ExecuteAsync(sql, new { triggerDefinition.Id });
     }
 }

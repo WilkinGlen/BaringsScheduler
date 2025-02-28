@@ -17,4 +17,8 @@ internal static class SchedulesDatabaseRepositoryServiceSqlScripts
         @"INSERT INTO [dbo].[TriggerDefinitions]([ScheduleName], [JobName], [JobDecription], [JobClassName], [JobGroupName], [CronSchedule])
           VALUES(@scheduleName, @jobName, @jobDecription, @jobClassName, @jobGroupName, @cronSchedule)
           SELECT @@IDENTITY AS Id";
+
+    internal const string DeleteTriggerDefinitionAsyncSql =
+        @"DELETE FROM [dbo].[TriggerDefinitions]
+          WHERE [Id] = @id";
 }

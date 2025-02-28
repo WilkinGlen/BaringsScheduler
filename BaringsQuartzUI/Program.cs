@@ -1,5 +1,6 @@
 using BaringsQuartzUI.Components;
 using BaringsQuartzUI.Repositories;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,8 @@ builder.Services.AddMudServices();
 
 builder.Services.AddScoped<IJobsDatabaseRepository, JobsDatabaseRepository>();
 builder.Services.AddScoped<ISchedulesDatabaseRepositoryService, SchedulesDatabaseRepositoryService>();
+
+StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 
 var app = builder.Build();
 
