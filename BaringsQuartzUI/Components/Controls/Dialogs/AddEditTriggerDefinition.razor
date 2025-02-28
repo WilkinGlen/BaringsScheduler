@@ -2,7 +2,7 @@
     <DialogContent>
         <MudStack Row>
             <MudText>Schedule name</MudText>
-            <MudTextField T="string" />
+            <MudTextField T="string" @bind-Value="@this.scheduleName" />
         </MudStack>
         <MudStack Row>
             <MudText>Cron expression</MudText>
@@ -36,12 +36,19 @@
                 }
             case ScheduleTypes.Monthly:
                 {
+                    <MonthlyExpressionBuilder OnDayTimeChanged="@this.MonthlyExpressionBuilderDayTimeChangedHandler" />
                     break;
                 }
             case ScheduleTypes.Periodically:
                 {
+                    <PeriodExpressionBuilder OnHoursMinutesChanged="@this.PeriodExpressionBuilderHoursMinutesChangedHandler" />
                     break;
                 }
         }
+        <MudStack Row>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined" OnClick="@this.CancelClickedHandler">Cancel</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="@this.SubmitClickedHandler">Submit</MudButton>
+        </MudStack>
     </DialogContent>
 </MudDialog>

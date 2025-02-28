@@ -1,5 +1,9 @@
-﻿<h3>MonthlyExpressionBuilder</h3>
-
-@code {
-
-}
+﻿<MudStack>
+    <MudTimePicker Label="Select time for schedule" TimeChanged="@this.TimeChangedHandler" />
+    <MudSelect T="int" Value="@this.selectedDay" Label="Select day of the month" ValueChanged="@this.SelectedDayChanged">
+        @foreach (var day in this.days)
+        {
+            <MudSelectItem Value="@day" />
+        }
+    </MudSelect>
+</MudStack>

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 public sealed partial class QuartzSchedules
 {
     private List<QuartzJobDetail>? quartzJobDetails;
+    private IEnumerable<TriggerDefinition>? triggerDefinitions;
 
     [Inject]
     private IJobsDatabaseRepository? JobsDatabaseRepository { get; set; }
@@ -33,7 +34,7 @@ public sealed partial class QuartzSchedules
         await Task.WhenAll(tasks);
 
         this.quartzJobDetails = [.. jobsTask.Result];
-        var triggerDefinitions = triggersTask.Result;
+        triggerDefinitions = triggersTask.Result;
         if (this.quartzJobDetails.Count > 0 && triggerDefinitions.Any())
         {
             foreach (var job in this.quartzJobDetails)
@@ -49,15 +50,24 @@ public sealed partial class QuartzSchedules
     private async Task AddTrigger(QuartzJobDetail quartzJobDetail)
     {
         var dialog = await this.DialogService!.ShowAsync<AddEditTriggerDefinition>("Add Trigger");
-        //var triggerDefinition = new TriggerDefinition
-        //{
-        //    ScheduleName = "Every3Minutes",
-        //    JobName = quartzJobDetail.JobName,
-        //    JobGroupName = quartzJobDetail.JobGroup,
-        //    JobClassName = quartzJobDetail.JobClassName,
-        //    CronSchedule = "0 0/3 * * * ?"
-        //};
-        //triggerDefinition.Id = (await this.SchedulesDatabaseRepositoryService!.InsertTriggerDefinitionAsync(triggerDefinition)).Id;
-        //quartzJobDetail.Triggers.Add(triggerDefinition);
+        var result = await dialog.Result;
+        if (result?.Data != null)
+        {
+            var (NewScheduleName, NewCronSchedule) = ((string ScheduleName, string CronSchedule))result?.Data!;
+
+            if (this.triggerDefinitions?.FirstOrDefault(x => x.ScheduleName == NewScheduleName && x.JobName == quartzJobDetail.JobName) == null)
+            {
+                var triggerDefinition = new TriggerDefinition
+                {
+                    ScheduleName = NewScheduleName,
+                    JobName = quartzJobDetail.JobName,
+                    JobGroupName = quartzJobDetail.JobGroup,
+                    JobClassName = quartzJobDetail.JobClassName,
+                    CronSchedule = NewCronSchedule
+                };
+                triggerDefinition.Id = (await this.SchedulesDatabaseRepositoryService!.InsertTriggerDefinitionAsync(triggerDefinition)).Id;
+                quartzJobDetail.Triggers.Add(triggerDefinition);
+            }
+        }
     }
 }
