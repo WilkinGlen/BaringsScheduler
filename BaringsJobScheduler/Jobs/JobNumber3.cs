@@ -21,7 +21,7 @@ public class JobNumber3 : IJob
         catch (Exception ex)
         {
             Log.Error(ex, "JobNumber3 failed");
-            context.MergedJobDataMap.Add("JobNumber3", "Failed");
+            context.MergedJobDataMap.Add("JobNumber3", ex.Message);
         }
     }
 }

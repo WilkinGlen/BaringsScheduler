@@ -45,7 +45,7 @@ public sealed class JobsDatabaseRepository(IConfiguration configuration) : IJobs
             jobDetail.LastRunResult = new()
             {
                 ResultDateTime = lastResult.RunCompleted,
-                ResultMessage = lastResult.Message,
+                ResultMessage = lastResult.ExceptionMessage ?? lastResult.Message,
                 ResultStatus = string.IsNullOrWhiteSpace(lastResult.ExceptionMessage)
             };
         }
@@ -62,7 +62,7 @@ public sealed class JobsDatabaseRepository(IConfiguration configuration) : IJobs
             jobDetail.SecondRunResult = new()
             {
                 ResultDateTime = secondLastResult.RunCompleted,
-                ResultMessage = secondLastResult.Message,
+                ResultMessage = secondLastResult.ExceptionMessage ?? secondLastResult.Message,
                 ResultStatus = string.IsNullOrWhiteSpace(secondLastResult.ExceptionMessage)
             };
         }
@@ -79,7 +79,7 @@ public sealed class JobsDatabaseRepository(IConfiguration configuration) : IJobs
             jobDetail.ThirdRunResult = new()
             {
                 ResultDateTime = thirdLastResult.RunCompleted,
-                ResultMessage = thirdLastResult.Message,
+                ResultMessage = thirdLastResult.ExceptionMessage ?? thirdLastResult.Message,
                 ResultStatus = string.IsNullOrWhiteSpace(thirdLastResult.ExceptionMessage)
             };
         }

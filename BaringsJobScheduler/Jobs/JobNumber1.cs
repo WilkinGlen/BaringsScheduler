@@ -22,7 +22,7 @@ public sealed class JobNumber1 : IJob
         catch (Exception ex)
         {
             Log.Error(ex, "JobNumber1 failed");
-            context.MergedJobDataMap.Add("JobNumber1", "Failed");
+            context.MergedJobDataMap.Add("JobNumber1", ex.Message);
         }
     }
 }

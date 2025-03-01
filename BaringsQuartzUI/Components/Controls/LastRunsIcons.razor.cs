@@ -9,50 +9,55 @@ public sealed partial class LastRunsIcons
     [Parameter]
     public QuartzJobDetail? JobDetail { get; set; }
 
-    private string? lastExecutionDateTime => this.JobDetail?.LastRunResult?.ResultDateTime.ToString("dd/MM/yyyy HH:mm:ss");
+    private string? LastExecutionDateTime => this.JobDetail?.LastRunResult?.ResultDateTime != null 
+        ? $"({this.JobDetail?.LastRunResult?.ResultDateTime.ToString("dd/MM HH:mm:ss")})" 
+        : null;
 
-    private (string? Icon, Color IconColor) GetLastIcon()
+    private (string? Icon, Color IconColor, string? Message) GetLastIcon()
     {
-        var icon = this.JobDetail?.LastRunResult != null ?
-            this.JobDetail?.LastRunResult?.ResultStatus == true ? 
-            Icons.Material.Filled.Done : 
-            Icons.Material.Filled.Clear : 
-            null;
-        var iconColour = this.JobDetail?.LastRunResult != null ?
-            this.JobDetail?.LastRunResult?.ResultStatus == true ?
-            Color.Success :
-            Color.Secondary :
-            Color.Transparent;
-        return (icon, iconColour);
+        var icon = this.JobDetail?.LastRunResult != null
+            ? this.JobDetail?.LastRunResult?.ResultStatus == true
+            ? Icons.Material.Filled.Done
+            : Icons.Material.Filled.Clear
+            : null;
+        var iconColour = this.JobDetail?.LastRunResult != null
+            ? this.JobDetail?.LastRunResult?.ResultStatus == true
+            ? Color.Success
+            : Color.Secondary
+            : Color.Transparent;
+        var message = $"{this.JobDetail?.LastRunResult?.ResultMessage}: {this.JobDetail?.LastRunResult?.ResultDateTime.ToString("dd/MM HH:mm:ss")}";
+        return (icon, iconColour, message);
     }
 
-    private (string? Icon, Color IconColor) GetSecondLastIcon()
+    private (string? Icon, Color IconColor, string? Message) GetSecondLastIcon()
     {
-        var icon = this.JobDetail?.SecondRunResult != null ?
-            this.JobDetail?.LastRunResult?.ResultStatus == true ?
-            Icons.Material.Filled.Done :
-            Icons.Material.Filled.Clear :
-            null;
-        var iconColour = this.JobDetail?.SecondRunResult != null ?
-            this.JobDetail?.LastRunResult?.ResultStatus == true ?
-            Color.Success :
-            Color.Secondary :
-            Color.Transparent;
-        return (icon, iconColour);
+        var icon = this.JobDetail?.SecondRunResult != null
+            ? this.JobDetail?.SecondRunResult?.ResultStatus == true
+            ? Icons.Material.Filled.Done
+            : Icons.Material.Filled.Clear
+            : null;
+        var iconColour = this.JobDetail?.SecondRunResult != null
+            ? this.JobDetail?.SecondRunResult?.ResultStatus == true
+            ? Color.Success
+            : Color.Secondary
+            : Color.Transparent;
+        var message = $"{this.JobDetail?.SecondRunResult?.ResultMessage}: {this.JobDetail?.LastRunResult?.ResultDateTime.ToString("dd/MM HH:mm:ss")}";
+        return (icon, iconColour, message);
     }
 
-    private (string? Icon, Color IconColor) GetThirdLastIcon()
+    private (string? Icon, Color IconColor, string? Message) GetThirdLastIcon()
     {
-        var icon = this.JobDetail?.ThirdRunResult != null ?
-            this.JobDetail?.LastRunResult?.ResultStatus == true ?
-            Icons.Material.Filled.Done :
-            Icons.Material.Filled.Clear :
-            null;
-        var iconColour = this.JobDetail?.ThirdRunResult != null ?
-            this.JobDetail?.LastRunResult?.ResultStatus == true ?
-            Color.Success :
-            Color.Secondary :
-            Color.Transparent;
-        return (icon, iconColour);
+        var icon = this.JobDetail?.ThirdRunResult != null
+            ? this.JobDetail?.ThirdRunResult?.ResultStatus == true
+            ? Icons.Material.Filled.Done
+            : Icons.Material.Filled.Clear
+            : null;
+        var iconColour = this.JobDetail?.ThirdRunResult != null
+            ? this.JobDetail?.ThirdRunResult?.ResultStatus == true
+            ? Color.Success
+            : Color.Secondary
+            : Color.Transparent;
+        var message = $"{this.JobDetail?.ThirdRunResult?.ResultMessage}: {this.JobDetail?.LastRunResult?.ResultDateTime.ToString("dd/MM HH:mm:ss")}";
+        return (icon, iconColour, message);
     }
 }
