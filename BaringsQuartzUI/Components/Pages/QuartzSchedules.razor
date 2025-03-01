@@ -21,19 +21,21 @@
                             <TemplateColumn>
                                 <HeaderTemplate Context="JobDetail">
                                     <MudSpacer />
+                                    <MudButton 
+                                        Variant="Variant.Outlined"
+                                        Color="Color.Default"
+                                        EndIcon="@Icons.Material.Filled.RunCircle"
+                                        Size="Size.Small"
+                                        OnClick="@(() => this.AddOneOffTrigger(context.Item))">Run</MudButton>
                                     <MudButton
                                         Variant="Variant.Outlined"
                                         Color="Color.Primary"
                                         EndIcon="@Icons.Material.Filled.Add"
                                         Size="Size.Small"
-                                        OnClick="@(() => this.AddTrigger(context.Item))">Add New</MudButton>
+                                        OnClick="@(() => this.AddTrigger(context.Item))">Add</MudButton>
+                                    <MudSpacer />
                                 </HeaderTemplate>
                                 <CellTemplate Context="TriggerDefinition">
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Default"
-                                               EndIcon="@Icons.Material.Filled.Delete"
-                                               Size="Size.Small"
-                                               OnClick="@(() => this.AddOneOffTrigger(TriggerDefinition.Item))">Run</MudButton>
                                     <MudButton
                                         Variant="Variant.Outlined"
                                         Color="Color.Secondary"

@@ -76,11 +76,8 @@ public sealed partial class QuartzSchedules
         _ = (job?.Triggers.Remove(triggerDefinition));
     }
 
-    private async Task AddOneOffTrigger(TriggerDefinition triggerDefinition)
+    private async Task AddOneOffTrigger(QuartzJobDetail quartzJobDetail)
     {
-        var quartzJobDetail = this.quartzJobDetails?.FirstOrDefault(x =>
-            x.JobName == triggerDefinition.JobName &&
-            x.JobGroup == triggerDefinition.JobGroupName);
         if (quartzJobDetail != null)
         {
             var oneOffTrigger = new TriggerDefinition
