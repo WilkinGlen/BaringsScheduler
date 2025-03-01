@@ -83,6 +83,12 @@ public sealed partial class QuartzSchedules
     {
         if (quartzJobDetail != null)
         {
+            if(await this.SchedulesDatabaseRepositoryService!.JobHasNotCompletedOneOffScheduleAsync(quartzJobDetail))
+            {
+                _ = this.Snackbar!.Add($"Job {quartzJobDetail.JobName} already has a not completed one-off schedule", Severity.Warning);
+                return;
+            }
+
             var oneOffTrigger = new TriggerDefinition
             {
                 JobName = quartzJobDetail.JobName,
@@ -91,7 +97,7 @@ public sealed partial class QuartzSchedules
                 JobGroupName = quartzJobDetail.JobGroup
             };
             await this.SchedulesDatabaseRepositoryService!.InsertOneOffTriggerDefinitionAsync(oneOffTrigger);
-            _ = this.Snackbar!.Add("One-off trigger added", Severity.Info);
+            _ = this.Snackbar!.Add($"One-off schedule for job {quartzJobDetail.JobName} added", Severity.Info);
         }
     }
 }

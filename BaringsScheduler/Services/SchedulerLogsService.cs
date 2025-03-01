@@ -25,7 +25,7 @@ internal static class SchedulerLogsService
 
         _ = await connection.ExecuteAsync(sql, parameters);
         
-        if (jobExecutionContext.Trigger.Key.Name == Constants.OneOffTriggerName)
+        if (jobExecutionContext.Trigger.Key.Name.Contains(Constants.OneOffTriggerName))
         {
             await LogOneOffAsCompletedAsync(jobExecutionContext);
         }
@@ -48,9 +48,8 @@ internal static class SchedulerLogsService
         };
 
         _ = await connection.ExecuteAsync(sql, parameters);
-        
-        if (jobExecutionContext.Trigger.Key.Name == Constants.OneOffTriggerName && 
-            jobExecutionContext.Trigger.Description == Constants.OneOffTriggerDescription)
+
+        if (jobExecutionContext.Trigger.Key.Name.Contains(Constants.OneOffTriggerName))
         {
             await LogOneOffAsCompletedAsync(jobExecutionContext);
         }
@@ -62,7 +61,8 @@ internal static class SchedulerLogsService
                     SET JobCompleted = GETUTCDATE()
                     WHERE ScheduleName = @scheduleName 
                     AND JobName = @jobName
-                    AND JobGroupName = @jobGroupName";
+                    AND JobGroupName = @jobGroupName
+                    AND JobCompleted IS NULL";
         var connection = new SqlConnection(Constants.SchedulerDatabaseConnectionString);
         var parameters = new
         {

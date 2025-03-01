@@ -25,4 +25,11 @@ internal static class SchedulesDatabaseRepositoryServiceSqlScripts
     internal const string InsertOneOffTriggerDefinitionAsyncSql =
         @"INSERT INTO [dbo].[OneOffTriggerDefinitions]([ScheduleName], [JobName], [JobDescription], [JobClassName], [JobGroupName])
           VALUES(@scheduleName, @jobName, @jobDescription, @jobClassName, @jobGroupName)";
+
+    internal const string JobHasNotCompletedOneOffScheduleAsyncSql =
+        @"SELECT COUNT(0) 
+          FROM [dbo].[OneOffTriggerDefinitions] 
+          WHERE [JobName] = @jobName 
+          AND [JobGroupName] = @jobGroupName 
+          AND [JobCompleted] IS NULL";
 }

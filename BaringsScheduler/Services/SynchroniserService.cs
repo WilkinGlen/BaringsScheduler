@@ -154,7 +154,7 @@ internal sealed class SynchroniserService
                     continue;
                 }
 
-                var triggerKey = new TriggerKey(Constants.OneOffTriggerName, jobKey.Group);
+                var triggerKey = new TriggerKey($"{Constants.OneOffTriggerName}-{jobKey.Name}", jobKey.Group);
                 var trigger = TriggerBuilder.Create()
                     .WithIdentity(triggerKey)
                     .WithDescription(oneOffTriggerDefinition.ScheduleDescription)

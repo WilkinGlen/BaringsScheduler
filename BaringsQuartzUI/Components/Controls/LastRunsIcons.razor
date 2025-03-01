@@ -1,0 +1,13 @@
+﻿<MudStack Row>
+    @{
+        var firstIcon = this.GetLastIcon();
+        var secondIcon = this.GetSecondLastIcon();
+        var thirdIcon = this.GetThirdLastIcon();
+    }
+    <MudStack Row Spacing="1">
+        <MudIcon Icon="@thirdIcon.Icon" Color="@thirdIcon.IconColor" />
+        <MudIcon Icon="@secondIcon.Icon" Color="@secondIcon.IconColor" />
+        <MudIcon Icon="@firstIcon.Icon" Color="@firstIcon.IconColor" />
+        <MudText Style="margin-top: 0.2rem;" Typo="Typo.subtitle2">@this.lastExecutionDateTime</MudText>
+    </MudStack>
+</MudStack>

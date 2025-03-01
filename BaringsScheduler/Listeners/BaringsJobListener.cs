@@ -19,14 +19,14 @@ public class BaringsJobListener : IJobListener
             {
                 await SchedulerLogsService.LogJobExecutionAsync(
                     context,
-                    $"{context.JobDetail.Key.Name} executed",
+                    Constants.SucceededMessage,
                     Constants.QuartzDatabaseConnectionString!);
                 return;
             }
 
             await SchedulerLogsService.LogJobFailureAsync(
                 context,
-                $"{context.JobDetail.Key.Name} failed",
+                $"{context.JobDetail.Key.Name} Failed",
                 context.MergedJobDataMap[context.JobDetail.Key.Name].ToString(),
                 Constants.QuartzDatabaseConnectionString!);
         }

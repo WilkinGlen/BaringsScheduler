@@ -11,4 +11,10 @@ public sealed class QuartzJobDetail
     public string? JobClassName { get; set; }
 
     public List<TriggerDefinition> Triggers { get; set; } = [];
+
+    public JobRunResult? LastRunResult { get; set; }
+
+    public JobRunResult? SecondRunResult { get; set; }
+
+    public JobRunResult? ThirdRunResult { get; set; }
 }
