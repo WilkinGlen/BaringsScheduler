@@ -21,6 +21,9 @@ public sealed partial class QuartzSchedules
     [Inject]
     private IDialogService? DialogService { get; set; }
 
+    [Inject]
+    private ISnackbar? Snackbar { get; set; }
+
     protected override async Task OnInitializedAsync() => await this.PopulateJobDetails();
 
     private async Task PopulateJobDetails()
@@ -88,6 +91,7 @@ public sealed partial class QuartzSchedules
                 JobGroupName = quartzJobDetail.JobGroup
             };
             await this.SchedulesDatabaseRepositoryService!.InsertOneOffTriggerDefinitionAsync(oneOffTrigger);
+            _ = this.Snackbar!.Add("One-off trigger added", Severity.Info);
         }
     }
 }
