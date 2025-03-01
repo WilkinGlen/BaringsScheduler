@@ -13,10 +13,10 @@
                     <PropertyColumn CellClass="jobDetailCell" Property="x => x.Description" Title="Job Description" />
                     <PropertyColumn CellClass="jobDetailCell" Property="x => x.JobClassName" Title="Job Class" />
                     <TemplateColumn>
-                            <HeaderTemplate>Last Runs</HeaderTemplate>
-                            <CellTemplate>
-                                <LastRunsIcons JobDetail="context.Item" />
-                            </CellTemplate>
+                        <HeaderTemplate>Last Runs</HeaderTemplate>
+                        <CellTemplate>
+                            <LastRunsIcons JobDetail="context.Item" />
+                        </CellTemplate>
                     </TemplateColumn>
                 </Columns>
                 <ChildRowContent>
@@ -27,16 +27,18 @@
                             <TemplateColumn>
                                 <HeaderTemplate Context="JobDetail">
                                     <MudSpacer />
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Default"
-                                               EndIcon="@Icons.Material.Filled.RunCircle"
-                                               Size="Size.Small"
-                                               OnClick="@(() => this.AddOneOffTrigger(context.Item))">Run</MudButton>
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Primary"
-                                               EndIcon="@Icons.Material.Filled.Add"
-                                               Size="Size.Small"
-                                               OnClick="@(() => this.AddTrigger(context.Item))">Add</MudButton>
+                                    <MudStack Row>
+                                        <MudButton Variant="Variant.Outlined"
+                                                   Color="Color.Default"
+                                                   EndIcon="@Icons.Material.Filled.RunCircle"
+                                                   Size="Size.Small"
+                                                   OnClick="@(() => this.AddOneOffTrigger(context.Item))">Run</MudButton>
+                                        <MudButton Variant="Variant.Outlined"
+                                                   Color="Color.Primary"
+                                                   EndIcon="@Icons.Material.Filled.Add"
+                                                   Size="Size.Small"
+                                                   OnClick="@(() => this.AddTrigger(context.Item))">Add</MudButton>
+                                    </MudStack>
                                     <MudSpacer />
                                 </HeaderTemplate>
                                 <CellTemplate Context="TriggerDefinition">
