@@ -9,8 +9,8 @@ public sealed partial class LastRunsIcons
     [Parameter]
     public QuartzJobDetail? JobDetail { get; set; }
 
-    private string? LastExecutionDateTime => this.JobDetail?.LastRunResult?.ResultDateTime != null 
-        ? $"({this.JobDetail?.LastRunResult?.ResultDateTime.ToString("dd/MM HH:mm:ss")})" 
+    private string? LastExecutionDateTime => this.JobDetail?.LastRunResult?.ResultDateTime != null
+        ? $"({this.JobDetail?.LastRunResult?.ResultDateTime.ToString("dd/MM HH:mm:ss")})"
         : null;
 
     private (string? Icon, Color IconColor, string? Message) GetLastIcon()

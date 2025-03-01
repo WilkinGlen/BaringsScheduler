@@ -83,7 +83,7 @@ public sealed partial class QuartzSchedules
     {
         if (quartzJobDetail != null)
         {
-            if(await this.SchedulesDatabaseRepositoryService!.JobHasNotCompletedOneOffScheduleAsync(quartzJobDetail))
+            if (await this.SchedulesDatabaseRepositoryService!.JobHasNotCompletedOneOffScheduleAsync(quartzJobDetail))
             {
                 _ = this.Snackbar!.Add($"Job {quartzJobDetail.JobName} already has a not completed one-off schedule", Severity.Warning);
                 return;

@@ -24,7 +24,7 @@ internal static class SchedulerLogsService
         };
 
         _ = await connection.ExecuteAsync(sql, parameters);
-        
+
         if (jobExecutionContext.Trigger.Key.Name.Contains(Constants.OneOffTriggerName))
         {
             await LogOneOffAsCompletedAsync(jobExecutionContext);

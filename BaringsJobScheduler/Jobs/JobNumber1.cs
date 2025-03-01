@@ -13,7 +13,7 @@ public sealed class JobNumber1 : IJob
         try
         {
             context.MergedJobDataMap.Clear();
-            
+
             await Console.Out.WriteLineAsync($"JobNumber1 executed: {DateTime.UtcNow}");
             Debug.WriteLine($"JobNumber1 executed: {DateTime.UtcNow}");
 

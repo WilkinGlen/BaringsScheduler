@@ -4,7 +4,6 @@ using BaringsQuartzUI.Models;
 using BaringsQuartzUI.Repositories.SqlScripts;
 using Dapper;
 using Microsoft.Data.SqlClient;
-using Quartz;
 
 public interface ISchedulesDatabaseRepositoryService
 {

@@ -7,7 +7,7 @@ public sealed partial class MainLayout
 
     private void DrawerToggle(string? pageTitle)
     {
-        if ((!string.IsNullOrWhiteSpace(pageTitle)))
+        if (!string.IsNullOrWhiteSpace(pageTitle))
         {
             this.pageTitle = $" - {pageTitle}";
         }
