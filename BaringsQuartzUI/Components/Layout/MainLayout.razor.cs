@@ -2,7 +2,16 @@
 
 public sealed partial class MainLayout
 {
-    private bool _drawerOpen;
+    private bool drawerOpen;
+    private string? pageTitle = " - Home";
 
-    private void DrawerToggle() => this._drawerOpen = !this._drawerOpen;
+    private void DrawerToggle(string? pageTitle)
+    {
+        if ((!string.IsNullOrWhiteSpace(pageTitle)))
+        {
+            this.pageTitle = $" - {pageTitle}";
+        }
+
+        this.drawerOpen = !this.drawerOpen;
+    }
 }
