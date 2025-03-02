@@ -8,6 +8,8 @@ public sealed class JobHistoryItem
 
     public string? JobName { get; set; }
 
+    public string? TriggerName { get; set; }
+
     public string? Message { get; set; }
 
     public string? ExceptionMessage { get; set; }

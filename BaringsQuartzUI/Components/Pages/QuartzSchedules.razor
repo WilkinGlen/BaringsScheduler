@@ -78,6 +78,7 @@
                         <MudDataGrid Items="@context.Item.JobHistory" Dense="true" HeaderClass="triggerHeaderClass" RowStyleFunc="SucceededRowColour">
                             <Columns>
                                 <PropertyColumn Property="x => x.JobName" Title="Job Name" />
+                                <PropertyColumn Property="x => x.TriggerName" Title="Trigger Name" />
                                 <PropertyColumn Property="x => x.RunCompleted" Title="Run Completed" />
                                 <PropertyColumn Property="x => x.Message" Title="Message" />
                                 <PropertyColumn Property="x => x.ExceptionMessage" Title="Exception Message" />

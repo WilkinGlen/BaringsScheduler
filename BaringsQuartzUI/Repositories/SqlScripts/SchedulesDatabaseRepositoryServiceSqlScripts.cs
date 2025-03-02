@@ -38,6 +38,7 @@ internal static class SchedulesDatabaseRepositoryServiceSqlScripts
             [Id],
             [RunCompleted],
             [JobName],
+            [TriggerName],
             [Message],
             [ExceptionMessage]
           FROM [dbo].[QuartzLogs]
