@@ -30,7 +30,7 @@
                                     <MudSpacer />
                                     <MudStack Row>
                                         <MudTooltip Text="View the history of this job">
-                                            <MudButton Variant="Variant.Filled"
+                                            <MudButton Variant="Variant.Outlined"
                                                        Color="Color.Dark"
                                                        EndIcon="@Icons.Material.Filled.History"
                                                        Size="Size.Small"
@@ -38,7 +38,7 @@
                                                        OnClick="@(() => this.ShowHistory(context.Item))">History</MudButton>
                                         </MudTooltip>
                                         <MudTooltip Text="Create a one-off schedule for this job">
-                                            <MudButton Variant="Variant.Filled"
+                                            <MudButton Variant="Variant.Outlined"
                                                        Color="Color.Success"
                                                        EndIcon="@Icons.Material.Filled.RunCircle"
                                                        Size="Size.Small"
@@ -46,7 +46,7 @@
                                                        OnClick="@(() => this.AddOneOffTrigger(context.Item))">Run</MudButton>
                                         </MudTooltip>
                                         <MudTooltip Text="Add a new schedule for this job">
-                                            <MudButton Variant="Variant.Filled"
+                                            <MudButton Variant="Variant.Outlined"
                                                        Color="Color.Primary"
                                                        EndIcon="@Icons.Material.Filled.Add"
                                                        Size="Size.Small"
@@ -59,7 +59,7 @@
                                     <MudStack Row>
                                         <MudSpacer />
                                         <MudTooltip Text="Delete this schedule">
-                                            <MudButton Variant="Variant.Filled"
+                                            <MudButton Variant="Variant.Outlined"
                                                        Color="Color.Secondary"
                                                        EndIcon="@Icons.Material.Filled.Delete"
                                                        Size="Size.Small"
