@@ -27,8 +27,8 @@ public sealed partial class QuartzSchedules
     protected override async Task OnInitializedAsync() => await this.PopulateJobDetails();
 
     private static Func<JobHistoryItem, int, string> SucceededRowColour => (x, i) =>
-        x.ExceptionMessage == null 
-            ? "background-color: rgba(100,255,100,0.5);" 
+        x.ExceptionMessage == null
+            ? "background-color: rgba(100,255,100,0.5);"
             : "background-color: rgba(255,100,100,0.5);";
 
     private async Task PopulateJobDetails()
