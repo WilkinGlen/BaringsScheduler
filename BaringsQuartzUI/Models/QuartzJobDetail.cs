@@ -17,4 +17,6 @@ public sealed class QuartzJobDetail
     public JobRunResult? SecondRunResult { get; set; }
 
     public JobRunResult? ThirdRunResult { get; set; }
+
+    public List<JobHistoryItem>? JobHistory { get; set; }
 }

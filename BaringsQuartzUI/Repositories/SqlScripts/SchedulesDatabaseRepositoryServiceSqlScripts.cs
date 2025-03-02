@@ -32,4 +32,15 @@ internal static class SchedulesDatabaseRepositoryServiceSqlScripts
           WHERE [JobName] = @jobName 
           AND [JobGroupName] = @jobGroupName 
           AND [JobCompleted] IS NULL";
+
+    internal const string GetJobHistoryAsyncSql =
+        @"SELECT
+            [Id],
+            [RunCompleted],
+            [JobName],
+            [Message],
+            [ExceptionMessage]
+          FROM [dbo].[QuartzLogs]
+          WHERE JobName = @jobName
+          AND GroupName = @groupName";
 }

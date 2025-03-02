@@ -20,6 +20,7 @@
                     </TemplateColumn>
                 </Columns>
                 <ChildRowContent>
+                    <MudText Typo="Typo.subtitle1" Style="font-weight: bold;">Triggers</MudText>
                     <MudDataGrid Items="@context.Item.Triggers" Dense="true" HeaderClass="triggerHeaderClass">
                         <Columns>
                             <PropertyColumn Property="x => x.ScheduleName" Title="Schedule Name" />
@@ -29,31 +30,55 @@
                                     <MudSpacer />
                                     <MudStack Row>
                                         <MudButton Variant="Variant.Outlined"
-                                                   Color="Color.Success"
-                                                   EndIcon="@Icons.Material.Filled.RunCircle"
-                                                   Size="Size.Small"
-                                                   Class="grid-button"
-                                                   OnClick="@(() => this.AddOneOffTrigger(context.Item))">Run</MudButton>
+                                        Color="Color.Default"
+                                        EndIcon="@Icons.Material.Filled.History"
+                                        Size="Size.Small"
+                                        Class="grid-button"
+                                        OnClick="@(() => this.ShowHistory(context.Item))">History</MudButton>
                                         <MudButton Variant="Variant.Outlined"
-                                                   Color="Color.Primary"
-                                                   EndIcon="@Icons.Material.Filled.Add"
-                                                   Size="Size.Small"
-                                                   Class="grid-button"
-                                                   OnClick="@(() => this.AddTrigger(context.Item))">Add</MudButton>
+                                        Color="Color.Success"
+                                        EndIcon="@Icons.Material.Filled.RunCircle"
+                                        Size="Size.Small"
+                                        Class="grid-button"
+                                        OnClick="@(() => this.AddOneOffTrigger(context.Item))">Run</MudButton>
+                                        <MudButton Variant="Variant.Outlined"
+                                        Color="Color.Primary"
+                                        EndIcon="@Icons.Material.Filled.Add"
+                                        Size="Size.Small"
+                                        Class="grid-button"
+                                        OnClick="@(() => this.AddTrigger(context.Item))">Add</MudButton>
                                     </MudStack>
-                                    <MudSpacer />
                                 </HeaderTemplate>
                                 <CellTemplate Context="TriggerDefinition">
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Secondary"
-                                               EndIcon="@Icons.Material.Filled.Delete"
-                                               Size="Size.Small"
-                                               Class="grid-button"
-                                               OnClick="@(() => this.DeleteTrigger(TriggerDefinition.Item))">Delete</MudButton>
+                                    <MudStack Row>
+                                        <MudSpacer />
+                                        <MudButton Variant="Variant.Outlined"
+                                        Color="Color.Secondary"
+                                        EndIcon="@Icons.Material.Filled.Delete"
+                                        Size="Size.Small"
+                                        Class="grid-button"
+                                        OnClick="@(() => this.DeleteTrigger(TriggerDefinition.Item))">Delete</MudButton>
+                                        <MudSpacer />
+                                    </MudStack>
                                 </CellTemplate>
                             </TemplateColumn>
                         </Columns>
                     </MudDataGrid>
+                    @if(context.Item.JobHistory?.Any() == true)
+                    {
+                        <MudText Typo="Typo.subtitle1" Style="font-weight: bold;">History</MudText>
+                        <MudDataGrid Items="@context.Item.JobHistory" Dense="true" HeaderClass="triggerHeaderClass" RowStyleFunc="SucceededRowColour">
+                            <Columns>
+                                <PropertyColumn Property="x => x.JobName" Title="Job Name" />
+                                <PropertyColumn Property="x => x.RunCompleted" Title="Run Completed" />
+                                <PropertyColumn Property="x => x.Message" Title="Message" />
+                                <PropertyColumn Property="x => x.ExceptionMessage" Title="Exception Message" />
+                            </Columns>
+                            <PagerContent>
+                                <MudDataGridPager T="JobHistoryItem" />
+                            </PagerContent>
+                        </MudDataGrid>
+                    }
                 </ChildRowContent>
             </MudDataGrid>
         </div>
@@ -74,6 +99,6 @@
     }
 
     .grid-button {
-        min-width: 5rem;
+        min-width: 6rem;
     }
 </style>

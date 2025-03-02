@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public sealed partial class QuartzSchedules
 {
-    private List<QuartzJobDetail>? quartzJobDetails;
+    private List<QuartzJobDetail> quartzJobDetails;
     private IEnumerable<TriggerDefinition>? triggerDefinitions;
 
     [Inject]
@@ -25,6 +25,9 @@ public sealed partial class QuartzSchedules
     private ISnackbar? Snackbar { get; set; }
 
     protected override async Task OnInitializedAsync() => await this.PopulateJobDetails();
+
+    private Func<JobHistoryItem, int, string> SucceededRowColour => (x, i) =>
+        x.ExceptionMessage == null ? "background-color: rgba(0,255,0,0.5);" : "background-color: rgba(255,0,0,0.5);";
 
     private async Task PopulateJobDetails()
     {
@@ -98,6 +101,26 @@ public sealed partial class QuartzSchedules
             };
             await this.SchedulesDatabaseRepositoryService!.InsertOneOffTriggerDefinitionAsync(oneOffTrigger);
             _ = this.Snackbar!.Add($"One-off schedule for job {quartzJobDetail.JobName} added", Severity.Info);
+        }
+    }
+
+    private async Task ShowHistory(QuartzJobDetail quartzJobDetail)
+    {
+        if (quartzJobDetail != null)
+        {
+            if(quartzJobDetail?.JobHistory?.Count > 0)
+            {
+                quartzJobDetail.JobHistory = [];
+                return;
+            }
+
+            foreach(var job in this.quartzJobDetails)
+            {
+                job.JobHistory = [];
+            }
+
+            var jobHistory = await this.SchedulesDatabaseRepositoryService!.GetJobHistoryAsync(quartzJobDetail!);
+            quartzJobDetail!.JobHistory = [.. jobHistory];
         }
     }
 }

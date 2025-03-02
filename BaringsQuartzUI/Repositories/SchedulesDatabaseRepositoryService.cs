@@ -16,6 +16,8 @@ public interface ISchedulesDatabaseRepositoryService
     Task InsertOneOffTriggerDefinitionAsync(TriggerDefinition triggerDefinition);
 
     Task<bool> JobHasNotCompletedOneOffScheduleAsync(QuartzJobDetail jobDetail);
+
+    Task<IEnumerable<JobHistoryItem>> GetJobHistoryAsync(QuartzJobDetail jobDetail);
 }
 
 public sealed class SchedulesDatabaseRepositoryService(IConfiguration configuration) : ISchedulesDatabaseRepositoryService
@@ -78,5 +80,15 @@ public sealed class SchedulesDatabaseRepositoryService(IConfiguration configurat
         parameters.Add("@jobGroupName", jobDetail.JobGroup);
         var connection = new SqlConnection(configuration.GetConnectionString("SchedulerDatabaseConnectionString"));
         return await connection.QuerySingleAsync<int>(sql, parameters) > 0;
+    }
+
+    public async Task<IEnumerable<JobHistoryItem>> GetJobHistoryAsync(QuartzJobDetail jobDetail)
+    {
+        var sql = SchedulesDatabaseRepositoryServiceSqlScripts.GetJobHistoryAsyncSql;
+        var parameters = new DynamicParameters();
+        parameters.Add("@jobName", jobDetail.JobName);
+        parameters.Add("@groupName", jobDetail.JobGroup);
+        var connection = new SqlConnection(configuration.GetConnectionString("QuartzDatabaseConnectionString"));
+        return await connection.QueryAsync<JobHistoryItem>(sql, parameters);
     }
 }
