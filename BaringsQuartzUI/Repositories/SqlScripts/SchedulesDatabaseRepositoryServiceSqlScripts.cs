@@ -42,5 +42,6 @@ internal static class SchedulesDatabaseRepositoryServiceSqlScripts
             [ExceptionMessage]
           FROM [dbo].[QuartzLogs]
           WHERE JobName = @jobName
-          AND GroupName = @groupName";
+          AND GroupName = @groupName
+          ORDER BY [RunCompleted] DESC";
 }

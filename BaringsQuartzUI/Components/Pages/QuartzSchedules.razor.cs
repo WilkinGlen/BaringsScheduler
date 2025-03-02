@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public sealed partial class QuartzSchedules
 {
-    private List<QuartzJobDetail> quartzJobDetails;
+    private List<QuartzJobDetail>? quartzJobDetails;
     private IEnumerable<TriggerDefinition>? triggerDefinitions;
 
     [Inject]
@@ -108,15 +108,18 @@ public sealed partial class QuartzSchedules
     {
         if (quartzJobDetail != null)
         {
-            if(quartzJobDetail?.JobHistory?.Count > 0)
+            if (quartzJobDetail?.JobHistory?.Count > 0)
             {
                 quartzJobDetail.JobHistory = [];
                 return;
             }
 
-            foreach(var job in this.quartzJobDetails)
+            if (this.quartzJobDetails != null)
             {
-                job.JobHistory = [];
+                foreach (var job in this.quartzJobDetails)
+                {
+                    job.JobHistory = [];
+                }
             }
 
             var jobHistory = await this.SchedulesDatabaseRepositoryService!.GetJobHistoryAsync(quartzJobDetail!);
