@@ -5,14 +5,14 @@
 <div class="container" style="margin-left: 5rem; margin-right: 5rem; margin-top: 3rem;">
     <div class="row">
         <div class="col">
-            <MudDataGrid Items="@this.quartzJobDetails" Dense="true" HeaderClass="jobHeaderCell">
+            <MudDataGrid Items="@this.quartzJobDetails" HeaderClass="mud-theme-dark" Dense="true">
                 <Columns>
                     <HierarchyColumn T="@QuartzJobDetail" />
-                    <PropertyColumn CellClass="jobDetailCell" Property="x => x.JobName" Title="Job Name" />
-                    <PropertyColumn CellClass="jobDetailCell" Property="x => x.JobGroup" Title="Job Group" />
-                    <PropertyColumn CellClass="jobDetailCell" Property="x => x.Description" Title="Job Description" />
-                    <PropertyColumn CellClass="jobDetailCell" Property="x => x.JobClassName" Title="Job Class" />
-                    <TemplateColumn>
+                    <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.JobName" Title="Job Name" />
+                    <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.JobGroup" Title="Job Group" />
+                    <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.Description" Title="Job Description" />
+                    <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.JobClassName" Title="Job Class" />
+                    <TemplateColumn HeaderClass="jobHeaderCell">
                         <HeaderTemplate>Last Runs</HeaderTemplate>
                         <CellTemplate>
                             <LastRunsIcons JobDetail="context.Item" />
@@ -21,17 +21,17 @@
                 </Columns>
                 <ChildRowContent>
                     <MudText Typo="Typo.subtitle1" Style="font-weight: bold;">Schedules</MudText>
-                    <MudDataGrid Items="@context.Item.Triggers" Dense="true" HeaderClass="mud-theme-info">
+                    <MudDataGrid Items="@context.Item.Triggers" HeaderClass="mud-theme-dark" Dense="true">
                         <Columns>
-                            <PropertyColumn Property="x => x.ScheduleName" Title="Schedule Name" HeaderClass="triggerHeaderClass" />
-                            <PropertyColumn Property="x => x.CronSchedule" Title="Cron Schedule" HeaderClass="triggerHeaderClass" />
+                            <PropertyColumn Property="x => x.ScheduleName" HeaderClass="jobHeaderCell" Title="Schedule Name" />
+                            <PropertyColumn Property="x => x.CronSchedule" HeaderClass="jobHeaderCell" Title="Cron Schedule" />
                             <TemplateColumn>
                                 <HeaderTemplate Context="JobDetail">
                                     <MudSpacer />
                                     <MudStack Row>
                                         <MudTooltip Text="View the history of this job">
                                             <MudButton Variant="Variant.Outlined"
-                                                       Color="Color.Dark"
+                                                       Color="Color.Info"
                                                        EndIcon="@Icons.Material.Filled.History"
                                                        Size="Size.Small"
                                                        Class="grid-button"
@@ -47,7 +47,7 @@
                                         </MudTooltip>
                                         <MudTooltip Text="Add a new schedule for this job">
                                             <MudButton Variant="Variant.Outlined"
-                                                       Color="Color.Primary"
+                                                       Color="Color.Tertiary"
                                                        EndIcon="@Icons.Material.Filled.Add"
                                                        Size="Size.Small"
                                                        Class="grid-button"
@@ -75,13 +75,13 @@
                     @if (context.Item.JobHistory?.Any() == true)
                     {
                         <MudText Typo="Typo.subtitle1" Style="font-weight: bold;">History</MudText>
-                        <MudDataGrid Items="@context.Item.JobHistory" Dense="true" HeaderClass="mud-theme-info" RowStyleFunc="SucceededRowColour">
+                        <MudDataGrid Items="@context.Item.JobHistory" HeaderClass="mud-theme-dark" Dense="true" RowStyleFunc="SucceededRowColour">
                             <Columns>
-                                <PropertyColumn Property="x => x.JobName" Title="Job Name" HeaderClass="triggerHeaderClass" />
-                                <PropertyColumn Property="x => x.TriggerName" Title="Trigger Name" HeaderClass="triggerHeaderClass" />
-                                <PropertyColumn Property="x => x.RunCompleted" Title="Run Completed" HeaderClass="triggerHeaderClass" />
-                                <PropertyColumn Property="x => x.Message" Title="Message" HeaderClass="triggerHeaderClass" />
-                                <PropertyColumn Property="x => x.ExceptionMessage" Title="Exception Message" HeaderClass="triggerHeaderClass" />
+                                <PropertyColumn Property="x => x.JobName" HeaderClass="jobHeaderCell" Title="Job Name" />
+                                <PropertyColumn Property="x => x.TriggerName" HeaderClass="jobHeaderCell" Title="Trigger Name" />
+                                <PropertyColumn Property="x => x.RunCompleted" HeaderClass="jobHeaderCell" Title="Run Completed" />
+                                <PropertyColumn Property="x => x.Message" HeaderClass="jobHeaderCell" Title="Message" />
+                                <PropertyColumn Property="x => x.ExceptionMessage" HeaderClass="jobHeaderCell" Title="Exception Message" />
                             </Columns>
                             <PagerContent>
                                 <MudDataGridPager T="JobHistoryItem" />
@@ -96,15 +96,12 @@
 
 <style>
     .jobHeaderCell {
-        font-weight: 900;
+        font-weight: 900 !important;
+        color: white !important;
     }
 
     .jobDetailCell {
-        font-weight: 700;
-    }
-
-    .triggerHeaderClass {
-        color: white !important;
+        font-weight: 700 !important;
     }
 
     .grid-button {
