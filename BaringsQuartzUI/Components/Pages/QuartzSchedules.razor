@@ -21,8 +21,8 @@
                 </Columns>
                 <ChildRowContent>
                     <MudStack Style="background-color: rgba(230,224,227,0.8);" Spacing="1">
-                        <MudText Typo="Typo.subtitle1" Style="font-weight: bold;">Schedules</MudText>
-                        <MudDataGrid Items="@context.Item.Triggers" HeaderClass="mud-theme-dark" Class="ml-8 mb-2" Dense="true">
+                        <MudText Typo="Typo.subtitle1" Class="ml-2 mt-2" Style="font-weight: bold;">Schedules</MudText>
+                        <MudDataGrid Items="@context.Item.Triggers" HeaderClass="mud-theme-dark" Class="ml-8 mr-1 mb-2" Dense="true">
                             <Columns>
                                 <PropertyColumn Property="x => x.ScheduleName" HeaderClass="jobHeaderCell" Title="Schedule Name" />
                                 <PropertyColumn Property="x => x.CronSchedule" HeaderClass="jobHeaderCell" Title="Cron Schedule" />
@@ -75,8 +75,8 @@
                         </MudDataGrid>
                         @if (context.Item.JobHistory?.Any() == true)
                         {
-                            <MudText Typo="Typo.subtitle1" Style="font-weight: bold;">History</MudText>
-                            <MudDataGrid Items="@context.Item.JobHistory" HeaderClass="mud-theme-dark" Dense="true" Class="ml-8 mb-2" RowStyleFunc="SucceededRowColour">
+                            <MudText Typo="Typo.subtitle1" Class="ml-2 mt-2" Style="font-weight: bold;">History</MudText>
+                            <MudDataGrid Items="@context.Item.JobHistory" HeaderClass="mud-theme-dark" Dense="true" Class="ml-8 mr-1 mb-2" RowStyleFunc="SucceededRowColour">
                                 <Columns>
                                     <PropertyColumn Property="x => x.JobName" HeaderClass="jobHeaderCell" Title="Job Name" />
                                     <PropertyColumn Property="x => x.TriggerName" HeaderClass="jobHeaderCell" Title="Trigger Name" />
