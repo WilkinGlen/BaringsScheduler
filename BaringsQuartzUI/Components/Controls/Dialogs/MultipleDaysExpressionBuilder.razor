@@ -1,6 +1,7 @@
 ﻿<MudStack>
     <MudTimePicker Label="Select time for schedule" TimeChanged="@this.TimeChangedHandler" />
     <MudStack Row Wrap="@Wrap.NoWrap">
+        <MudSpacer />
         <MudCheckBox Value="@this.days.Mon" Label="Monday" ValueChanged="@(new EventCallback<bool>(this, MonChangedHandler))" />
         <MudCheckBox Value="@this.days.Tue" Label="Tuesday" ValueChanged="@(new EventCallback<bool>(this, TueChangedHandler))" />
         <MudCheckBox Value="@this.days.Wed" Label="Wednesday" ValueChanged="@(new EventCallback<bool>(this, WedChangedHandler))" />
@@ -8,5 +9,6 @@
         <MudCheckBox Value="@this.days.Fri" Label="Friday" ValueChanged="@(new EventCallback<bool>(this, FriChangedHandler))" />
         <MudCheckBox Value="@this.days.Sat" Label="Saturday" ValueChanged="@(new EventCallback<bool>(this, SatChangedHandler))" />
         <MudCheckBox Value="@this.days.Sun" Label="Sunday" ValueChanged="@(new EventCallback<bool>(this, SunChangedHandler))" />
+        <MudSpacer />
     </MudStack>
 </MudStack>

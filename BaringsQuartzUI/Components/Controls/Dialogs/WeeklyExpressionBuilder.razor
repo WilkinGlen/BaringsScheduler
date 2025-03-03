@@ -1,12 +1,16 @@
 ﻿<MudStack>
     <MudTimePicker Label="Select time for schedule" TimeChanged="@this.TimeChangedHandler" />
-    <MudRadioGroup T="string" ValueChanged="@this.DaySelected">
-        <MudRadio Value="@("Monday")">Monday</MudRadio>
-        <MudRadio Value="@("Tuesday")">Tuesday</MudRadio>
-        <MudRadio Value="@("Wednesday")">Wednesday</MudRadio>
-        <MudRadio Value="@("Thursday")">Thursday</MudRadio>
-        <MudRadio Value="@("Friday")">Friday</MudRadio>
-        <MudRadio Value="@("Saturday")">Saturday</MudRadio>
-        <MudRadio Value="@("Sunday")">Sunday</MudRadio>
-    </MudRadioGroup>
+    <MudStack Row Wrap="@Wrap.NoWrap">
+        <MudSpacer />
+        <MudRadioGroup T="string" ValueChanged="@this.DaySelected">
+            <MudRadio Value="@("Monday")">Monday</MudRadio>
+            <MudRadio Value="@("Tuesday")">Tuesday</MudRadio>
+            <MudRadio Value="@("Wednesday")">Wednesday</MudRadio>
+            <MudRadio Value="@("Thursday")">Thursday</MudRadio>
+            <MudRadio Value="@("Friday")">Friday</MudRadio>
+            <MudRadio Value="@("Saturday")">Saturday</MudRadio>
+            <MudRadio Value="@("Sunday")">Sunday</MudRadio>
+        </MudRadioGroup>
+        <MudSpacer />
+    </MudStack>
 </MudStack>

@@ -54,7 +54,7 @@ public sealed partial class QuartzSchedules
 
     private async Task AddTrigger(QuartzJobDetail quartzJobDetail)
     {
-        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter };
+        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, CloseButton = true };
         var dialog = await this.DialogService!.ShowAsync<AddEditTriggerDefinition>("Add Trigger", options: dialogOptions);
         var result = await dialog.Result;
         if (result?.Data != null)

@@ -1,12 +1,12 @@
-﻿<MudStack Row>
-    <MudText>Hours</MudText>
+﻿<MudStack Row Class="mt-6">
+    <MudText Class="mt-1">Hours</MudText>
     <MudSelect T="int" @bind-Value="@this.SelectedHour">
         @foreach (var hour in this.Hours)
         {
             <MudSelectItem Value="@hour" />
         }
     </MudSelect>
-    <MudText>Minutes</MudText>
+    <MudText Class="mt-1">Minutes</MudText>
     <MudSelect T="int" @bind-Value="@this.SelectedMinute">
         @foreach (var minute in this.Minutes)
         {
