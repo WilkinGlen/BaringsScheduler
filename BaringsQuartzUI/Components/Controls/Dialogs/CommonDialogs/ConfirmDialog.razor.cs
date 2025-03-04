@@ -5,13 +5,13 @@ using MudBlazor;
 
 public sealed partial class ConfirmDialog
 {
-    [CascadingParameter] 
+    [CascadingParameter]
     private IMudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
     public string? ContentText { get; set; }
 
-    private void Submit () => this.MudDialog!.Close(DialogResult.Ok(true));
+    private void Submit() => this.MudDialog!.Close(DialogResult.Ok(true));
 
     private void Cancel() => this.MudDialog!.Cancel();
 }

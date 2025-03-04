@@ -4,7 +4,7 @@ using MudBlazor;
 
 public interface ICommonDialogsService
 {
-    Task<bool> GetConfirmationAsync(string titleText, string contentText, DialogOptions? options =null);
+    Task<bool> GetConfirmationAsync(string titleText, string contentText, DialogOptions? options = null);
 }
 
 public sealed class CommonDialogsService(IDialogService dialogService) : ICommonDialogsService

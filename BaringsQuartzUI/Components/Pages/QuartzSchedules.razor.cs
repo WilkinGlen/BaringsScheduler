@@ -175,6 +175,6 @@ public sealed partial class QuartzSchedules
         }
     }
 
-    private void ShowErrorSnackbar() => 
+    private void ShowErrorSnackbar() =>
         _ = this.Snackbar!.Add("An error has occurred", Severity.Error);
 }
