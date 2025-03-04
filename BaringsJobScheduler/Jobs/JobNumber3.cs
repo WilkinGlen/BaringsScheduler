@@ -4,8 +4,9 @@ using BaringsScheduler.Models;
 using Quartz;
 using Serilog;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
-public class JobNumber3 : IJob
+public sealed class JobNumber3 : IJob
 {
     public async Task Execute(IJobExecutionContext context)
     {

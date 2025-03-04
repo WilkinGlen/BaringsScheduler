@@ -1,5 +1,6 @@
 namespace CronExpressionBuilderServiceTests;
 using BaringsQuartzUI.Services;
+using Quartz;
 using Xunit;
 
 public class CronExpressionBuilderServiceTests
@@ -15,6 +16,10 @@ public class CronExpressionBuilderServiceTests
         var result = CronExpressionBuilderService.BuildCronExpression(timeSpan);
 
         Assert.Equal(expected, result);
+        if (result is not null)
+        {
+            Assert.True(CronExpression.IsValidExpression(result));
+        }
     }
 
     [Theory]
@@ -27,6 +32,10 @@ public class CronExpressionBuilderServiceTests
         var result = CronExpressionBuilderService.BuildCronExpression(day, timeSpan);
 
         Assert.Equal(expected, result);
+        if (result is not null)
+        {
+            Assert.True(CronExpression.IsValidExpression(result));
+        }
     }
 
     [Theory]
@@ -40,6 +49,10 @@ public class CronExpressionBuilderServiceTests
         var result = CronExpressionBuilderService.BuildCronExpression(timeSpan, days);
 
         Assert.Equal(expected, result);
+        if (result is not null)
+        {
+            Assert.True(CronExpression.IsValidExpression(result));
+        }
     }
 
     [Theory]
@@ -54,17 +67,25 @@ public class CronExpressionBuilderServiceTests
         var result = CronExpressionBuilderService.BuildCronExpression(day, timeSpan);
 
         Assert.Equal(expected, result);
+        if (result is not null)
+        {
+            Assert.True(CronExpression.IsValidExpression(result));
+        }
     }
 
     [Theory]
     [InlineData(1, 0, "0 0 0/1 * * ?")]
     [InlineData(0, 30, "0 0/30 * * * ?")]
     [InlineData(0, 0, null)]
-    [InlineData(24, 0, "0 0 0/24 * * ?")]
+    [InlineData(23, 0, "0 0 0/23 * * ?")]
     public void BuildCronExpression_HourAndMinute_ReturnsExpectedCronExpression(int hour, int minute, string? expected)
     {
         var result = CronExpressionBuilderService.BuildCronExpression(hour, minute);
 
         Assert.Equal(expected, result);
+        if (result is not null)
+        {
+            Assert.True(CronExpression.IsValidExpression(result));
+        }
     }
 }

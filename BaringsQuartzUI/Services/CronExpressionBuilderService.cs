@@ -38,7 +38,7 @@ public static class CronExpressionBuilderService
             : null;
 
     public static string? BuildCronExpression(int hour, int minute) =>
-        hour > 0 ? $"0 0 0/{hour} * * ?" :
-        minute > 0 ? $"0 0/{minute} * * * ?" :
+        hour is > 0 and < 24 ? $"0 0 0/{hour} * * ?" :
+        minute is > 0 and < 60 ? $"0 0/{minute} * * * ?" :
         null;
 }
