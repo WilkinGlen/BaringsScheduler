@@ -37,106 +37,144 @@ public sealed partial class QuartzSchedules
 
     private async Task PopulateJobDetails()
     {
-        var jobsTask = this.JobsDatabaseRepository!.GetAllJobsAsync();
-        var triggersTask = this.SchedulesDatabaseRepositoryService!.GetAllTriggerDefinitionsAsync();
-        var tasks = new List<Task> { jobsTask, triggersTask };
-        await Task.WhenAll(tasks);
-
-        this.quartzJobDetails = [.. jobsTask.Result];
-        this.triggerDefinitions = triggersTask.Result;
-        if (this.quartzJobDetails.Count > 0 && this.triggerDefinitions.Any())
+        try
         {
-            foreach (var job in this.quartzJobDetails)
+            var jobsTask = this.JobsDatabaseRepository!.GetAllJobsAsync();
+            var triggersTask = this.SchedulesDatabaseRepositoryService!.GetAllTriggerDefinitionsAsync();
+            var tasks = new List<Task> { jobsTask, triggersTask };
+            await Task.WhenAll(tasks);
+
+            this.quartzJobDetails = [.. jobsTask.Result];
+            this.triggerDefinitions = triggersTask.Result;
+            if (this.quartzJobDetails.Count > 0 && this.triggerDefinitions.Any())
             {
-                job.Triggers = [.. this.triggerDefinitions.Where(x =>
+                foreach (var job in this.quartzJobDetails)
+                {
+                    job.Triggers = [.. this.triggerDefinitions.Where(x =>
                     x.JobName == job.JobName &&
                     x.JobGroupName == job.JobGroup &&
                     x.JobClassName == job.JobClassName)];
+                }
             }
+        }
+        catch
+        {
+            this.ShowErrorSnackbar();
         }
     }
 
     private async Task AddTrigger(QuartzJobDetail quartzJobDetail)
     {
-        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, CloseButton = true };
-        var dialog = await this.DialogService!.ShowAsync<AddEditTriggerDefinition>("Add Trigger", options: dialogOptions);
-        var result = await dialog.Result;
-        if (result?.Data != null)
+        try
         {
-            var (NewScheduleName, NewCronSchedule) = ((string ScheduleName, string CronSchedule))result?.Data!;
-
-            if (this.triggerDefinitions?.FirstOrDefault(x => x.ScheduleName == NewScheduleName && x.JobName == quartzJobDetail.JobName) == null)
+            var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, CloseButton = true };
+            var dialog = await this.DialogService!.ShowAsync<AddEditTriggerDefinition>("Add Trigger", options: dialogOptions);
+            var result = await dialog.Result;
+            if (result?.Data != null)
             {
-                var triggerDefinition = new TriggerDefinition
+                var (NewScheduleName, NewCronSchedule) = ((string ScheduleName, string CronSchedule))result?.Data!;
+
+                if (this.triggerDefinitions?.FirstOrDefault(x => x.ScheduleName == NewScheduleName && x.JobName == quartzJobDetail.JobName) == null)
                 {
-                    ScheduleName = NewScheduleName,
-                    JobName = quartzJobDetail.JobName,
-                    JobGroupName = quartzJobDetail.JobGroup,
-                    JobClassName = quartzJobDetail.JobClassName,
-                    CronSchedule = NewCronSchedule
-                };
-                triggerDefinition.Id = (await this.SchedulesDatabaseRepositoryService!.InsertTriggerDefinitionAsync(triggerDefinition)).Id;
-                quartzJobDetail.Triggers.Add(triggerDefinition);
-                _ = this.Snackbar!.Add($"Trigger {triggerDefinition.ScheduleName} added", Severity.Info);
+                    var triggerDefinition = new TriggerDefinition
+                    {
+                        ScheduleName = NewScheduleName,
+                        JobName = quartzJobDetail.JobName,
+                        JobGroupName = quartzJobDetail.JobGroup,
+                        JobClassName = quartzJobDetail.JobClassName,
+                        CronSchedule = NewCronSchedule
+                    };
+                    triggerDefinition.Id = (await this.SchedulesDatabaseRepositoryService!.InsertTriggerDefinitionAsync(triggerDefinition)).Id;
+                    quartzJobDetail.Triggers.Add(triggerDefinition);
+                    _ = this.Snackbar!.Add($"Trigger {triggerDefinition.ScheduleName} added", Severity.Info);
+                }
             }
+        }
+        catch
+        {
+            this.ShowErrorSnackbar();
         }
     }
 
     private async Task DeleteTrigger(TriggerDefinition triggerDefinition)
     {
-        if (await this.CommonDialogsService!.GetConfirmationAsync(
+        try
+        {
+            if (await this.CommonDialogsService!.GetConfirmationAsync(
                 "Delete Trigger?",
                 $"Are you sure you want to delete trigger <b>{triggerDefinition.ScheduleName}</b>?"))
+            {
+                await this.SchedulesDatabaseRepositoryService!.DeleteTriggerDefinitionAsync(triggerDefinition);
+                var job = this.quartzJobDetails?.FirstOrDefault(x => x.JobName == triggerDefinition.JobName);
+                _ = (job?.Triggers.Remove(triggerDefinition));
+                _ = this.Snackbar!.Add($"Trigger {triggerDefinition.ScheduleName} deleted", Severity.Info);
+            }
+        }
+        catch
         {
-            await this.SchedulesDatabaseRepositoryService!.DeleteTriggerDefinitionAsync(triggerDefinition);
-            var job = this.quartzJobDetails?.FirstOrDefault(x => x.JobName == triggerDefinition.JobName);
-            _ = (job?.Triggers.Remove(triggerDefinition));
-            _ = this.Snackbar!.Add($"Trigger {triggerDefinition.ScheduleName} deleted", Severity.Info);
+            this.ShowErrorSnackbar();
         }
     }
 
     private async Task AddOneOffTrigger(QuartzJobDetail quartzJobDetail)
     {
-        if (quartzJobDetail != null)
+        try
         {
-            if (await this.SchedulesDatabaseRepositoryService!.JobHasNotCompletedOneOffScheduleAsync(quartzJobDetail))
+            if (quartzJobDetail != null)
             {
-                _ = this.Snackbar!.Add($"Job {quartzJobDetail.JobName} already has a not completed one-off schedule", Severity.Warning);
-                return;
-            }
+                if (await this.SchedulesDatabaseRepositoryService!.JobHasNotCompletedOneOffScheduleAsync(quartzJobDetail))
+                {
+                    _ = this.Snackbar!.Add($"Job {quartzJobDetail.JobName} already has a not completed one-off schedule", Severity.Warning);
+                    return;
+                }
 
-            var oneOffTrigger = new TriggerDefinition
-            {
-                JobName = quartzJobDetail.JobName,
-                JobDescription = quartzJobDetail.Description,
-                JobClassName = quartzJobDetail.JobClassName,
-                JobGroupName = quartzJobDetail.JobGroup
-            };
-            await this.SchedulesDatabaseRepositoryService!.InsertOneOffTriggerDefinitionAsync(oneOffTrigger);
-            _ = this.Snackbar!.Add($"One-off schedule for job {quartzJobDetail.JobName} added", Severity.Info);
+                var oneOffTrigger = new TriggerDefinition
+                {
+                    JobName = quartzJobDetail.JobName,
+                    JobDescription = quartzJobDetail.Description,
+                    JobClassName = quartzJobDetail.JobClassName,
+                    JobGroupName = quartzJobDetail.JobGroup
+                };
+                await this.SchedulesDatabaseRepositoryService!.InsertOneOffTriggerDefinitionAsync(oneOffTrigger);
+                _ = this.Snackbar!.Add($"One-off schedule for job {quartzJobDetail.JobName} added", Severity.Info);
+            }
+        }
+        catch
+        {
+            this.ShowErrorSnackbar();
         }
     }
 
     private async Task ShowHistory(QuartzJobDetail quartzJobDetail)
     {
-        if (quartzJobDetail != null)
+        try
         {
-            if (quartzJobDetail?.JobHistory?.Count > 0)
+            if (quartzJobDetail != null)
             {
-                quartzJobDetail.JobHistory = [];
-                return;
-            }
-
-            if (this.quartzJobDetails != null)
-            {
-                foreach (var job in this.quartzJobDetails)
+                if (quartzJobDetail?.JobHistory?.Count > 0)
                 {
-                    job.JobHistory = [];
+                    quartzJobDetail.JobHistory = [];
+                    return;
                 }
-            }
 
-            var jobHistory = await this.SchedulesDatabaseRepositoryService!.GetJobHistoryAsync(quartzJobDetail!);
-            quartzJobDetail!.JobHistory = [.. jobHistory];
+                if (this.quartzJobDetails != null)
+                {
+                    foreach (var job in this.quartzJobDetails)
+                    {
+                        job.JobHistory = [];
+                    }
+                }
+
+                var jobHistory = await this.SchedulesDatabaseRepositoryService!.GetJobHistoryAsync(quartzJobDetail!);
+                quartzJobDetail!.JobHistory = [.. jobHistory];
+            }
+        }
+        catch
+        {
+            this.ShowErrorSnackbar();
         }
     }
+
+    private void ShowErrorSnackbar() => 
+        _ = this.Snackbar!.Add("An error has occurred", Severity.Error);
 }
