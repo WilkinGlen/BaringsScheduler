@@ -7,9 +7,23 @@ using MudBlazor;
 public sealed partial class AddEditTriggerDefinition
 {
     private readonly List<ScheduleTypes> scheduleTypes = [.. Enum.GetValues<ScheduleTypes>()];
-    private ScheduleTypes selectedScheduleType;
     private string? cronExpression;
     private string? scheduleName;
+
+    private ScheduleTypes selectedScheduleType;
+    private ScheduleTypes SelectedScheduleType
+    {
+        get => this.selectedScheduleType;
+        set
+        {
+            if (this.selectedScheduleType != value)
+            {
+                this.cronExpression = null;
+            }
+
+            this.selectedScheduleType = value;
+        }
+    }
 
     [CascadingParameter]
     private IMudDialogInstance? MudDialog { get; set; }

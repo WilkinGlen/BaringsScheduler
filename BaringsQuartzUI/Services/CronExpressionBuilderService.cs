@@ -22,7 +22,7 @@ public static class CronExpressionBuilderService
             : null;
 
     public static string? BuildCronExpression(TimeSpan timeSpan, params DayOfWeek[] daysOfWeek) =>
-        timeSpan != TimeSpan.Zero
+        timeSpan != TimeSpan.Zero && daysOfWeek.Length > 0
             ? ((CronTriggerImpl)CronScheduleBuilder
                 .AtHourAndMinuteOnGivenDaysOfWeek(timeSpan.Hours, timeSpan.Minutes, daysOfWeek)
                 .Build())
@@ -30,7 +30,7 @@ public static class CronExpressionBuilderService
             : null;
 
     public static string? BuildCronExpression(int day, TimeSpan timeSpan) =>
-        timeSpan != TimeSpan.Zero
+        timeSpan != TimeSpan.Zero && day > 0
             ? ((CronTriggerImpl)CronScheduleBuilder
                 .MonthlyOnDayAndHourAndMinute(day, timeSpan.Hours, timeSpan.Minutes)
                 .Build())

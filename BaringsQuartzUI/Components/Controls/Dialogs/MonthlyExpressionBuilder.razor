@@ -1,5 +1,5 @@
 ﻿<MudStack>
-    <MudTimePicker Label="Select time for schedule" TimeChanged="@this.TimeChangedHandler" />
+    <MudTimePicker Label="Select time for schedule" Color="Color.Dark" TimeChanged="@this.TimeChangedHandler" />
     <MudSelect T="int" Value="@this.selectedDay" Label="Select day of the month" ValueChanged="@this.SelectedDayChanged">
         @foreach (var day in this.days)
         {

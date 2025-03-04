@@ -1,5 +1,5 @@
 ﻿<MudStack>
-    <MudTimePicker Label="Select time for schedule" TimeChanged="@this.TimeChangedHandler" />
+    <MudTimePicker Label="Select time for schedule" Color="Color.Dark" TimeChanged="@this.TimeChangedHandler" />
     <MudStack Row Wrap="@Wrap.NoWrap">
         <MudSpacer />
         <MudCheckBox Value="@this.days.Mon" Label="Monday" ValueChanged="@(new EventCallback<bool>(this, MonChangedHandler))" />

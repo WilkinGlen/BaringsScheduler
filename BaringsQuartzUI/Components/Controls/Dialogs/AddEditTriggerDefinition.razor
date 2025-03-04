@@ -11,7 +11,7 @@
             </MudStack>
             <MudStack Row>
                 <MudText Class="component-label">Schedule type:</MudText>
-                <MudSelect T="ScheduleTypes" @bind-Value="@this.selectedScheduleType">
+                <MudSelect T="ScheduleTypes" @bind-Value="@this.SelectedScheduleType">
                     @foreach (var type in this.scheduleTypes)
                     {
                         <MudSelectItem Value="@type" />
@@ -50,7 +50,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@this.CancelClickedHandler">Cancel</MudButton>
-        <MudButton Variant="Variant.Outlined" Size="Size.Small" Color="Color.Primary" OnClick="@this.SubmitClickedHandler">Submit</MudButton>
+        <MudButton Variant="Variant.Outlined" Size="Size.Small" Color="Color.Primary" Disabled="@this.SubmitButtonDisabled" OnClick="@this.SubmitClickedHandler">Submit</MudButton>
     </DialogActions>
 </MudDialog>
 
