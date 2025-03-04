@@ -1,6 +1,7 @@
 ﻿namespace BaringsQuartzUI.Components.Pages;
 
 using BaringsQuartzUI.Components.Controls.Dialogs;
+using BaringsQuartzUI.Components.Controls.Dialogs.CommonDialogs;
 using BaringsQuartzUI.Models;
 using BaringsQuartzUI.Repositories;
 using Microsoft.AspNetCore.Components;
@@ -20,6 +21,9 @@ public sealed partial class QuartzSchedules
 
     [Inject]
     private IDialogService? DialogService { get; set; }
+
+    [Inject]
+    private ICommonDialogsService? CommonDialogsService { get; set; }
 
     [Inject]
     private ISnackbar? Snackbar { get; set; }
@@ -73,15 +77,22 @@ public sealed partial class QuartzSchedules
                 };
                 triggerDefinition.Id = (await this.SchedulesDatabaseRepositoryService!.InsertTriggerDefinitionAsync(triggerDefinition)).Id;
                 quartzJobDetail.Triggers.Add(triggerDefinition);
+                _ = this.Snackbar!.Add($"Trigger {triggerDefinition.ScheduleName} added", Severity.Info);
             }
         }
     }
 
     private async Task DeleteTrigger(TriggerDefinition triggerDefinition)
     {
-        await this.SchedulesDatabaseRepositoryService!.DeleteTriggerDefinitionAsync(triggerDefinition);
-        var job = this.quartzJobDetails?.FirstOrDefault(x => x.JobName == triggerDefinition.JobName);
-        _ = (job?.Triggers.Remove(triggerDefinition));
+        if (await this.CommonDialogsService!.GetConfirmationAsync(
+                "Delete Trigger?",
+                $"Are you sure you want to delete trigger <b>{triggerDefinition.ScheduleName}</b>?"))
+        {
+            await this.SchedulesDatabaseRepositoryService!.DeleteTriggerDefinitionAsync(triggerDefinition);
+            var job = this.quartzJobDetails?.FirstOrDefault(x => x.JobName == triggerDefinition.JobName);
+            _ = (job?.Triggers.Remove(triggerDefinition));
+            _ = this.Snackbar!.Add($"Trigger {triggerDefinition.ScheduleName} deleted", Severity.Info);
+        }
     }
 
     private async Task AddOneOffTrigger(QuartzJobDetail quartzJobDetail)

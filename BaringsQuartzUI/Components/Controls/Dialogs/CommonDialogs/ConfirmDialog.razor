@@ -1,0 +1,9 @@
+﻿<MudDialog TitleClass="dialog-background-title" ContentClass="dialog-background-content">
+    <DialogContent>
+        <MudText>@((MarkupString)this.ContentText!)</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined" OnClick="@this.Cancel">No</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="Submit">Yes</MudButton>
+    </DialogActions>
+</MudDialog>

@@ -1,4 +1,5 @@
 using BaringsQuartzUI.Components;
+using BaringsQuartzUI.Components.Controls.Dialogs.CommonDialogs;
 using BaringsQuartzUI.Repositories;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using MudBlazor;
@@ -21,6 +22,8 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.ShowTransitionDuration = 500;
     config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
 });
+builder.Services.AddScoped<DialogService>();
+builder.Services.AddScoped<ICommonDialogsService, CommonDialogsService>();
 
 builder.Services.AddScoped<IJobsDatabaseRepository, JobsDatabaseRepository>();
 builder.Services.AddScoped<ISchedulesDatabaseRepositoryService, SchedulesDatabaseRepositoryService>();
