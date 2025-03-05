@@ -13,6 +13,8 @@ public sealed partial class QuartzSchedules
     private List<QuartzJobDetail>? quartzJobDetails;
     private IEnumerable<TriggerDefinition>? triggerDefinitions;
 
+    private bool IsInitialising;
+
     [Inject]
     private IJobsDatabaseRepository? JobsDatabaseRepository { get; set; }
 
@@ -39,6 +41,7 @@ public sealed partial class QuartzSchedules
     {
         try
         {
+            this.IsInitialising = true;
             var jobsTask = this.JobsDatabaseRepository!.GetAllJobsAsync();
             var triggersTask = this.SchedulesDatabaseRepositoryService!.GetAllTriggerDefinitionsAsync();
             var tasks = new List<Task> { jobsTask, triggersTask };
@@ -60,6 +63,10 @@ public sealed partial class QuartzSchedules
         catch
         {
             this.ShowErrorSnackbar();
+        }
+        finally
+        {
+            this.IsInitialising = false;
         }
     }
 

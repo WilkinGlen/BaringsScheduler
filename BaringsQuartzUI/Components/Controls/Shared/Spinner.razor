@@ -1,0 +1,14 @@
+﻿<div class="spinner-grid">
+    <MudStack AlignItems="AlignItems.Center">
+        <MudSpacer />
+        <MudProgressCircular Indeterminate="true" Size="@this.Size" Color="@this.Color" />
+        <MudText>@this.Message</MudText>
+    </MudStack>
+</div>
+
+<style>
+    .spinner-grid {
+        display: flex;
+        justify-content: center;
+    }
+</style>

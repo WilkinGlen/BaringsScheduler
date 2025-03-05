@@ -5,93 +5,100 @@
 <div class="container" style="margin-left: 5rem; margin-right: 5rem; margin-top: 3rem;">
     <div class="row">
         <div class="col">
-            <MudDataGrid Items="@this.quartzJobDetails" HeaderClass="mud-theme-dark" Dense="true">
-                <Columns>
-                    <HierarchyColumn T="@QuartzJobDetail" />
-                    <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.JobName" Title="Job Name" />
-                    <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.JobGroup" Title="Job Group" />
-                    <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.Description" Title="Job Description" />
-                    <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.JobClassName" Title="Job Class" />
-                    <TemplateColumn HeaderClass="jobHeaderCell">
-                        <HeaderTemplate>Last Runs</HeaderTemplate>
-                        <CellTemplate>
-                            <LastRunsIcons JobDetail="context.Item" />
-                        </CellTemplate>
-                    </TemplateColumn>
-                </Columns>
-                <ChildRowContent>
-                    <MudStack Style="background-color: rgba(230,224,227,0.8);" Spacing="1">
-                        <MudText Typo="Typo.subtitle1" Class="ml-2 mt-2" Style="font-weight: bold;">Schedules</MudText>
-                        <MudDataGrid Items="@context.Item.Triggers" HeaderClass="mud-theme-dark" Class="ml-8 mr-1 mb-2" Dense="true">
-                            <Columns>
-                                <PropertyColumn Property="x => x.ScheduleName" HeaderClass="jobHeaderCell" Title="Schedule Name" />
-                                <PropertyColumn Property="x => x.CronSchedule" HeaderClass="jobHeaderCell" Title="Cron Schedule" />
-                                <TemplateColumn>
-                                    <HeaderTemplate Context="JobDetail">
-                                        <MudSpacer />
-                                        <MudStack Row>
-                                            <MudTooltip Text="View the history of this job">
-                                                <MudButton Variant="Variant.Outlined"
-                                                           Color="Color.Info"
-                                                           EndIcon="@Icons.Material.Filled.History"
-                                                           Size="Size.Small"
-                                                           Class="grid-button"
-                                                           OnClick="@(() => this.ShowHistory(context.Item))">History</MudButton>
-                                            </MudTooltip>
-                                            <MudTooltip Text="Create a one-off schedule for this job">
-                                                <MudButton Variant="Variant.Outlined"
-                                                           Color="Color.Success"
-                                                           EndIcon="@Icons.Material.Filled.RunCircle"
-                                                           Size="Size.Small"
-                                                           Class="grid-button"
-                                                           OnClick="@(() => this.AddOneOffTrigger(context.Item))">Run</MudButton>
-                                            </MudTooltip>
-                                            <MudTooltip Text="Add a new schedule for this job">
-                                                <MudButton Variant="Variant.Outlined"
-                                                           Color="Color.Tertiary"
-                                                           EndIcon="@Icons.Material.Filled.Add"
-                                                           Size="Size.Small"
-                                                           Class="grid-button"
-                                                           OnClick="@(() => this.AddTrigger(context.Item))">Add</MudButton>
-                                            </MudTooltip>
-                                        </MudStack>
-                                    </HeaderTemplate>
-                                    <CellTemplate Context="TriggerDefinition">
-                                        <MudStack Row>
-                                            <MudSpacer />
-                                            <MudTooltip Text="Delete this schedule">
-                                                <MudButton Variant="Variant.Outlined"
-                                                           Color="Color.Secondary"
-                                                           EndIcon="@Icons.Material.Filled.Delete"
-                                                           Size="Size.Small"
-                                                           Class="grid-button"
-                                                           OnClick="@(() => this.DeleteTrigger(TriggerDefinition.Item))">Delete</MudButton>
-                                            </MudTooltip>
-                                            <MudSpacer />
-                                        </MudStack>
-                                    </CellTemplate>
-                                </TemplateColumn>
-                            </Columns>
-                        </MudDataGrid>
-                        @if (context.Item.JobHistory?.Any() == true)
-                        {
-                            <MudText Typo="Typo.subtitle1" Class="ml-2 mt-2" Style="font-weight: bold;">History</MudText>
-                            <MudDataGrid Items="@context.Item.JobHistory" HeaderClass="mud-theme-dark" Dense="true" Class="ml-8 mr-1 mb-2" RowStyleFunc="SucceededRowColour">
+            @if (this.IsInitialising)
+            {
+                <Spinner Color="Color.Dark" />
+            }
+            else
+            {
+                <MudDataGrid Items="@this.quartzJobDetails" HeaderClass="mud-theme-dark" Dense="true">
+                    <Columns>
+                        <HierarchyColumn T="@QuartzJobDetail" />
+                        <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.JobName" Title="Job Name" />
+                        <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.JobGroup" Title="Job Group" />
+                        <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.Description" Title="Job Description" />
+                        <PropertyColumn CellClass="jobDetailCell" HeaderClass="jobHeaderCell" Property="x => x.JobClassName" Title="Job Class" />
+                        <TemplateColumn HeaderClass="jobHeaderCell">
+                            <HeaderTemplate>Last Runs</HeaderTemplate>
+                            <CellTemplate>
+                                <LastRunsIcons JobDetail="context.Item" />
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                    <ChildRowContent>
+                        <MudStack Style="background-color: rgba(230,224,227,0.8);" Spacing="1">
+                            <MudText Typo="Typo.subtitle1" Class="ml-2 mt-2" Style="font-weight: bold;">Schedules</MudText>
+                            <MudDataGrid Items="@context.Item.Triggers" HeaderClass="mud-theme-dark" Class="ml-8 mr-1 mb-2" Dense="true">
                                 <Columns>
-                                    <PropertyColumn Property="x => x.JobName" HeaderClass="jobHeaderCell" Title="Job Name" />
-                                    <PropertyColumn Property="x => x.TriggerName" HeaderClass="jobHeaderCell" Title="Trigger Name" />
-                                    <PropertyColumn Property="x => x.RunCompleted" HeaderClass="jobHeaderCell" Title="Run Completed" />
-                                    <PropertyColumn Property="x => x.Message" HeaderClass="jobHeaderCell" Title="Message" />
-                                    <PropertyColumn Property="x => x.ExceptionMessage" HeaderClass="jobHeaderCell" Title="Exception Message" />
+                                    <PropertyColumn Property="x => x.ScheduleName" HeaderClass="jobHeaderCell" Title="Schedule Name" />
+                                    <PropertyColumn Property="x => x.CronSchedule" HeaderClass="jobHeaderCell" Title="Cron Schedule" />
+                                    <TemplateColumn>
+                                        <HeaderTemplate Context="JobDetail">
+                                            <MudSpacer />
+                                            <MudStack Row>
+                                                <MudTooltip Text="View the history of this job">
+                                                    <MudButton Variant="Variant.Outlined"
+                                                               Color="Color.Info"
+                                                               EndIcon="@Icons.Material.Filled.History"
+                                                               Size="Size.Small"
+                                                               Class="grid-button"
+                                                               OnClick="@(() => this.ShowHistory(context.Item))">History</MudButton>
+                                                </MudTooltip>
+                                                <MudTooltip Text="Create a one-off schedule for this job">
+                                                    <MudButton Variant="Variant.Outlined"
+                                                               Color="Color.Success"
+                                                               EndIcon="@Icons.Material.Filled.RunCircle"
+                                                               Size="Size.Small"
+                                                               Class="grid-button"
+                                                               OnClick="@(() => this.AddOneOffTrigger(context.Item))">Run</MudButton>
+                                                </MudTooltip>
+                                                <MudTooltip Text="Add a new schedule for this job">
+                                                    <MudButton Variant="Variant.Outlined"
+                                                               Color="Color.Tertiary"
+                                                               EndIcon="@Icons.Material.Filled.Add"
+                                                               Size="Size.Small"
+                                                               Class="grid-button"
+                                                               OnClick="@(() => this.AddTrigger(context.Item))">Add</MudButton>
+                                                </MudTooltip>
+                                            </MudStack>
+                                        </HeaderTemplate>
+                                        <CellTemplate Context="TriggerDefinition">
+                                            <MudStack Row>
+                                                <MudSpacer />
+                                                <MudTooltip Text="Delete this schedule">
+                                                    <MudButton Variant="Variant.Outlined"
+                                                               Color="Color.Secondary"
+                                                               EndIcon="@Icons.Material.Filled.Delete"
+                                                               Size="Size.Small"
+                                                               Class="grid-button"
+                                                               OnClick="@(() => this.DeleteTrigger(TriggerDefinition.Item))">Delete</MudButton>
+                                                </MudTooltip>
+                                                <MudSpacer />
+                                            </MudStack>
+                                        </CellTemplate>
+                                    </TemplateColumn>
                                 </Columns>
-                                <PagerContent>
-                                    <MudDataGridPager T="JobHistoryItem" />
-                                </PagerContent>
                             </MudDataGrid>
-                        }
-                    </MudStack>
-                </ChildRowContent>
-            </MudDataGrid>
+                            @if (context.Item.JobHistory?.Any() == true)
+                            {
+                                <MudText Typo="Typo.subtitle1" Class="ml-2 mt-2" Style="font-weight: bold;">History</MudText>
+                                <MudDataGrid Items="@context.Item.JobHistory" HeaderClass="mud-theme-dark" Dense="true" Class="ml-8 mr-1 mb-2" RowStyleFunc="SucceededRowColour">
+                                    <Columns>
+                                        <PropertyColumn Property="x => x.JobName" HeaderClass="jobHeaderCell" Title="Job Name" />
+                                        <PropertyColumn Property="x => x.TriggerName" HeaderClass="jobHeaderCell" Title="Trigger Name" />
+                                        <PropertyColumn Property="x => x.RunCompleted" HeaderClass="jobHeaderCell" Title="Run Completed" />
+                                        <PropertyColumn Property="x => x.Message" HeaderClass="jobHeaderCell" Title="Message" />
+                                        <PropertyColumn Property="x => x.ExceptionMessage" HeaderClass="jobHeaderCell" Title="Exception Message" />
+                                    </Columns>
+                                    <PagerContent>
+                                        <MudDataGridPager T="JobHistoryItem" />
+                                    </PagerContent>
+                                </MudDataGrid>
+                            }
+                        </MudStack>
+                    </ChildRowContent>
+                </MudDataGrid>
+            }
         </div>
     </div>
 </div>
