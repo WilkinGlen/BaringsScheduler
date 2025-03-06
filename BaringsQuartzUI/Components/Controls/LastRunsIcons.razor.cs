@@ -41,7 +41,7 @@ public sealed partial class LastRunsIcons
             ? Color.Success
             : Color.Secondary
             : Color.Transparent;
-        var message = $"{this.JobDetail?.SecondRunResult?.ResultMessage}: {this.JobDetail?.LastRunResult?.ResultDateTime.ToString("dd/MM/yyyy HH:mm:ss")}";
+        var message = $"{this.JobDetail?.SecondRunResult?.ResultMessage}: {this.JobDetail?.SecondRunResult?.ResultDateTime.ToString("dd/MM/yyyy HH:mm:ss")}";
         return (icon, iconColour, message);
     }
 
@@ -57,7 +57,7 @@ public sealed partial class LastRunsIcons
             ? Color.Success
             : Color.Secondary
             : Color.Transparent;
-        var message = $"{this.JobDetail?.ThirdRunResult?.ResultMessage}: {this.JobDetail?.LastRunResult?.ResultDateTime.ToString("dd/MM/yyyy HH:mm:ss")}";
+        var message = $"{this.JobDetail?.ThirdRunResult?.ResultMessage}: {this.JobDetail?.ThirdRunResult?.ResultDateTime.ToString("dd/MM/yyyy HH:mm:ss")}";
         return (icon, iconColour, message);
     }
 }
