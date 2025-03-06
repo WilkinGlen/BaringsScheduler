@@ -217,7 +217,8 @@ internal sealed class SynchroniserService
                 .WithPriority(Constants.StandardJobPriority)
                 .WithCronSchedule(
                     triggerDefinition.CronSchedule!,
-                    x => x.WithMisfireHandlingInstructionFireAndProceed())
+                    x => x.WithMisfireHandlingInstructionFireAndProceed()
+                    .InTimeZone(TimeZoneInfo.Utc))
                 .Build();
             _ = await Scheduler.ScheduleJob(newTrigger, cancellationToken);
             Log.Information($"Trigger {triggerDefinition.ScheduleName} for job {newTrigger.JobKey.Name}  added to group {triggerDefinition.JobGroupName}");
@@ -243,7 +244,8 @@ internal sealed class SynchroniserService
                 .WithPriority(Constants.StandardJobPriority)
                 .WithCronSchedule(
                     triggerDefinition.CronSchedule!,
-                    x => x.WithMisfireHandlingInstructionFireAndProceed())
+                    x => x.WithMisfireHandlingInstructionFireAndProceed()
+                    .InTimeZone(TimeZoneInfo.Utc))
                 .Build();
             _ = await Scheduler.RescheduleJob(quartzTrigger.Key, newTrigger, cancellationToken);
             Log.Information($"Trigger {triggerDefinition.ScheduleName} for job {newTrigger.JobKey.Name}  in group {triggerDefinition.JobGroupName} updated to: {triggerDefinition.CronSchedule}");
@@ -347,7 +349,10 @@ internal sealed class SynchroniserService
                 .WithDescription(Constants.SynchroniserTriggerDescription)
                 .WithPriority(Constants.SyncJobPriority)
                 .StartNow()
-                .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
+                .WithCronSchedule(
+                    expectedRunPeriodMinutes, 
+                    x => x.WithMisfireHandlingInstructionFireAndProceed()
+                    .InTimeZone(TimeZoneInfo.Utc))
                 .Build();
             _ = await Scheduler.ScheduleJob(job, trigger, cancellationToken);
             Log.Information($"Job {Constants.SynchroniserJobName} in group {Constants.SynchroniserGroupName} added with trigger {Constants.SynchroniserTriggerName}");
@@ -389,7 +394,10 @@ internal sealed class SynchroniserService
                             .WithIdentity(Constants.SynchroniserTriggerName, Constants.SynchroniserGroupName)
                             .WithPriority(5)
                             .StartNow()
-                            .WithCronSchedule(expectedRunPeriodMinutes, x => x.WithMisfireHandlingInstructionFireAndProceed())
+                            .WithCronSchedule(
+                                expectedRunPeriodMinutes, 
+                                x => x.WithMisfireHandlingInstructionFireAndProceed()
+                                .InTimeZone(TimeZoneInfo.Utc))
                             .Build();
                 _ = await Scheduler.ScheduleJob(trigger, cancellationToken);
                 Log.Information($"Trigger {Constants.SynchroniserTriggerName} for job {trigger.JobKey.Name} in group {Constants.SynchroniserGroupName} added with cron schedule: {expectedRunPeriodMinutes}");
