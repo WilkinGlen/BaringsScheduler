@@ -25,4 +25,14 @@ internal static class JobsDatabaseRepositorySqlScripts
           	LEFT JOIN RankedLogs_CTE AS RL ON J.JOB_GROUP = RL.GroupName AND J.JOB_NAME = RL.JobName
           WHERE (RL.RowNum IS NULL OR RL.RowNum <= 3)
           AND J.JOB_GROUP <> 'SYNC_GROUP_NAME' AND J.JOB_NAME <> 'SYNC_JOB_NAME'";
+
+    internal const string GetJobRunCountsAsyncSql =
+        @"SELECT 
+              JobName AS JobName,
+              GroupName AS GroupName,
+              COUNT(CASE WHEN ExceptionMessage IS NULL THEN 1 END) AS SuccessCount,
+              COUNT(CASE WHEN ExceptionMessage IS NOT NULL THEN 1 END) AS ErrorCount
+          FROM QuartzLogs
+          GROUP BY JobName, GroupName
+          ORDER BY JobName, GroupName";
 }

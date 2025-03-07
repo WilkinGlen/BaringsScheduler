@@ -9,6 +9,8 @@ using Microsoft.Data.SqlClient;
 public interface IJobsDatabaseRepository
 {
     Task<IEnumerable<QuartzJobDetail>> GetAllJobsAsync();
+
+    Task<IEnumerable<JobRunCountsItem>> GetJobRunCountsAsync();
 }
 
 public sealed class JobsDatabaseRepository(IConfiguration configuration) : IJobsDatabaseRepository
@@ -22,6 +24,13 @@ public sealed class JobsDatabaseRepository(IConfiguration configuration) : IJobs
         PopulateResults(jobDetails, runResults);
 
         return jobDetails;
+    }
+
+    public async Task<IEnumerable<JobRunCountsItem>> GetJobRunCountsAsync()
+    {
+        var sql = JobsDatabaseRepositorySqlScripts.GetJobRunCountsAsyncSql;
+        var connection = new SqlConnection(configuration.GetConnectionString("QuartzDatabaseConnectionString"));
+        return await connection.QueryAsync<JobRunCountsItem>(sql);
     }
 
     private static void PopulateResults(IEnumerable<QuartzJobDetail> jobDetails, IEnumerable<JobResultsDto> runResults)

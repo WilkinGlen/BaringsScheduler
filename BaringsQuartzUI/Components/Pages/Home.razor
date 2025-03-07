@@ -1,3 +1,31 @@
 ﻿@page "/"
 
 <PageTitle>Home</PageTitle>
+
+<MudStack Class="mt-8" AlignItems="AlignItems.Center">
+    <MudText Typo="@Typo.h6">Scheduled Job Results</MudText>
+    <MudStack Row Class="mt-4" Justify="Justify.Center">
+        @if (this.jobRunCounts == null)
+        {
+            <Spinner Color="Color.Dark" Message="Loading, please wait ..." Size="Size.Large" />
+        }
+        else
+        {
+            foreach (var result in this.jobRunCounts!)
+            {
+                <MudCard Elevation="6">
+                    <MudCardContent>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="@Typo.h6">Job: @result.JobName</MudText>
+                            <MudChart ChartType="ChartType.Donut" InputData="@GetData(result)" InputLabels="@GetLabels(result)" ChartOptions="@ChartOptions">
+                                <CustomGraphics>
+                                    <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@GetTotal(result)</text>
+                                </CustomGraphics>
+                            </MudChart>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            }
+        }
+    </MudStack>
+</MudStack>

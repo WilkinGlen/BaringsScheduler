@@ -14,7 +14,7 @@ public sealed class JobNumber2 : IJob
         {
             context.MergedJobDataMap.Clear();
 
-            if(DateTime.UtcNow.Minute % 4 == 0)
+            if (DateTime.UtcNow.Minute % 4 == 0)
             {
                 throw new Exception("JobNumber2 failed because the currect time minute is dividable by 4");
             }

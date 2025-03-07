@@ -348,7 +348,7 @@ internal sealed class SynchroniserService
                 .WithPriority(Constants.SyncJobPriority)
                 .StartNow()
                 .WithCronSchedule(
-                    expectedRunPeriodMinutes, 
+                    expectedRunPeriodMinutes,
                     x => x.InTimeZone(TimeZoneInfo.Utc).WithMisfireHandlingInstructionFireAndProceed())
                 .Build();
             _ = await Scheduler.ScheduleJob(job, trigger, cancellationToken);
@@ -392,7 +392,7 @@ internal sealed class SynchroniserService
                             .WithPriority(5)
                             .StartNow()
                             .WithCronSchedule(
-                                expectedRunPeriodMinutes, 
+                                expectedRunPeriodMinutes,
                                 x => x.InTimeZone(TimeZoneInfo.Utc).WithMisfireHandlingInstructionFireAndProceed())
                             .Build();
                 _ = await Scheduler.ScheduleJob(trigger, cancellationToken);
