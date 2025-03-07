@@ -16,6 +16,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaringsQuartzUI", "BaringsQ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CronExpressionBuilderServiceTests", "CronExpressionBuilderServiceTests\CronExpressionBuilderServiceTests.csproj", "{37EACBDC-456F-45FF-BC1B-D26ECE1791EC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DDLScripts", "DDLScripts", "{CA025480-D62A-41B8-8771-525BF0CB7805}"
+	ProjectSection(SolutionItems) = preProject
+		AddJobsTables.sql = AddJobsTables.sql
+		AddSchedulesTables.sql = AddSchedulesTables.sql
+		CreateJobsDb.sql = CreateJobsDb.sql
+		CreateSchedulesDb.sql = CreateSchedulesDb.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
